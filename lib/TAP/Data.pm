@@ -6,6 +6,8 @@ use warnings;
 use TAP::Parser;
 use YAML::Syck;
 
+use Data::Dumper;
+
 our $VERSION = '0.01';
 
 sub tap2data {
@@ -30,7 +32,11 @@ sub tap2data {
                 foreach (qw(type as_string raw directive
                             explanation number description))
                 {
-                        $entry{$_} = $result->$_ unless ( $result->is_plan or $result->is_comment or $result->is_version or $result->is_yaml);
+                        $entry{$_} = $result->$_ unless ( $result->is_plan or
+                                                          $result->is_comment or
+                                                          $result->is_version or
+                                                          $result->is_yaml or
+                                                          $result->is_unknown);
                 }
 
                 # only occasionally basic info
@@ -42,7 +48,11 @@ sub tap2data {
                 # more basic info
                 foreach (qw(ok unplanned)) {
                         my $meth = "is_$_";
-                        $entry{$meth} = $result->$meth ? 1 : 0 unless ( $result->is_plan or $result->is_comment or $result->is_version or $result->is_yaml);
+                        $entry{$meth} = $result->$meth ? 1 : 0 unless ( $result->is_plan or
+                                                                        $result->is_comment or
+                                                                        $result->is_version or
+                                                                        $result->is_yaml or
+                                                                        $result->is_unknown);
                 }
                 $entry{is_actual_ok} = $result->is_actual_ok if $result->has_todo;
 
@@ -53,10 +63,10 @@ sub tap2data {
                 }
 
                 # carve out plan
-                $plan = $result->as_string if $result->is_plan;
+                ($plan) = $result->as_string =~ /1\.\.(.+)/g if $result->is_plan;
 
                 # yaml becomes content of line before
-                $results[-1]->{diag}{yaml} = Load($entry{as_string}) if ($result->is_yaml);
+                $results[-1]->{diag}{yaml} = $result->data if $result->is_yaml;
 
                 # pragmas
                 my @pragmas = $parser->pragmas;# unless $result->is_plan;

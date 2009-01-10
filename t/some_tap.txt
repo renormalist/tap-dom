@@ -1,5 +1,5 @@
 TAP version 13
-1..71
+1..8
 ok 1 - use Data::DPath;
    ---
      -
@@ -19,86 +19,13 @@ ok 2 - KEYs
        value: 2
    ...
 ok 3 - KEYs + PARENT
-ok 4 - KEYs + PARENT + PARENT
-ok 5 - KEYs + PARENT + KEY
-ok 6 - KEYs + ANYSTEP + PARENT + KEY no double results
-ok 7 - ROOT
-ok 8 - KEYs + ANYSTEP
-ok 9 - KEYs
-ok 10 - KEYs + PARENT
-ok 11 - KEYs + PARENT + PARENT
-ok 12 - KEYs + PARENT + KEY
-ok 13 - KEYs + ANYSTEP + PARENT + KEY no double results
-ok 14 - ROOT
-ok 15 - KEYs + ANYSTEP
-ok 16 - ANYWHERE + KEYs + ANYSTEP
-ok 17 - 2xANYWHERE + KEYs + ANYSTEP
-ok 18 - ANYWHERE + KEYs + ANYSTEP as function
-ok 19 - 2xANYWHERE + KEYs + ANYSTEP as function
-ok 20 - ROOT + KEY + ANYWHERE + KEY
-ok 21 - ANYWHERE + KEY + ANYWHERE + KEY
-ok 22 - ROOT + KEY + ANYWHEREs + KEY
-ok 23 - ANYWHERE + KEYs + ANYWHEREs
-ok 24 - ANYWHERE + KEYs + ANYSTEP with smartmatch and variable
-ok 25 - 2xANYWHERE + KEYs + ANYSTEP with smartmatch and variable
-ok 26 - ANYWHERE + KEYs + ANYSTEP with smartmatch and dpath()
-ok 27 - 2xANYWHERE + KEYs + ANYSTEP with smartmatch and dpath()
-ok 28 - ANYWHERE + KEYs + ANYSTEP with smartmatch and dpath without parens
-ok 29 - 2xANYWHERE + KEYs + ANYSTEP with smartmatch and dpath without parens
-ok 30 - ANYWHERE + KEYs + ANYSTEP with smartmatch and dpath without parens commutative
-ok 31 - 2xANYWHERE + KEYs + ANYSTEP with smartmatch and dpath without parens commutative
-ok 32 - trailing .../* unpacks
-ok 33 - quoted KEY containg slash
-not ok 34 # TODO spec only
+ok 4 - quoted KEY containg slash
+not ok 5 # TODO spec only
 #   Failed (TODO) test at t/data_dpath.t line 144.
 #     Structures begin differing at:
 #          $got->[0] = Does not exist
 #     $expected->[0] = ARRAY(0x8e4c238)
-not ok 35 # TODO spec only
-#   Failed (TODO) test at t/data_dpath.t line 146.
-#     Structures begin differing at:
-#          $got->[0] = Does not exist
-#     $expected->[0] = ARRAY(0x8e4bff8)
-not ok 36 # TODO spec only
-#   Failed (TODO) test at t/data_dpath.t line 148.
-#     Structures begin differing at:
-#          $got->[0] = Does not exist
-#     $expected->[0] = ARRAY(0x8e4b9e8)
-not ok 37 # TODO spec only
-#   Failed (TODO) test at t/data_dpath.t line 152.
-#     Structures begin differing at:
-#          $got->[1] = ARRAY(0x8e5e168)
-#     $expected->[1] = Does not exist
-not ok 38 # TODO spec only
-#   Failed (TODO) test at t/data_dpath.t line 155.
-#     Structures begin differing at:
-#          $got->[1] = ARRAY(0x8e5e168)
-#     $expected->[1] = Does not exist
-ok 39
-not ok 40 # TODO spec only
-#   Failed (TODO) test at t/data_dpath.t line 168.
-#     Structures begin differing at:
-#          $got->[0] = Does not exist
-#     $expected->[0] = 'XXX'
-not ok 41 - ANYSTEP + FILTER int # TODO spec only
-#   Failed (TODO) test 'ANYSTEP + FILTER int'
-#   at t/data_dpath.t line 171.
-#     Structures begin differing at:
-#          $got->[1] = Does not exist
-#     $expected->[1] = 'RR3'
-not ok 42 - ANYWHERE + ANYSTEP + FILTER int # TODO spec only
-#   Failed (TODO) test 'ANYWHERE + ANYSTEP + FILTER int'
-#   at t/data_dpath.t line 174.
-#     Structures begin differing at:
-#          $got->[1] = Does not exist
-#     $expected->[1] = 'RR3'
-not ok 43 - KEY + FILTER int # TODO spec only
-#   Failed (TODO) test 'KEY + FILTER int'
-#   at t/data_dpath.t line 178.
-#     Structures begin differing at:
-#          $got->[0] = Does not exist
-#     $expected->[0] = 'ZZZ'
-not ok 44 - ANYWHERE + KEY + FILTER int # TODO spec only
+not ok 6 - ANYWHERE + KEY + FILTER int # TODO spec only
 #   Failed (TODO) test 'ANYWHERE + KEY + FILTER int'
 #   at t/data_dpath.t line 181.
 #     Structures begin differing at:
@@ -111,84 +38,9 @@ not ok 44 - ANYWHERE + KEY + FILTER int # TODO spec only
 #             'ZZZ'
 #           ]
 #         ];
-ok 45 - KEY + FILTER int 0 # TODO rethink spec
-ok 46 - KEY + FILTER int 1 # TODO rethink spec
-# $VAR1 = [
-#           [
-#             'XXX',
-#             'YYY',
-#             'ZZZ'
-#           ]
-#         ];
-ok 47 - ANYWHERE + KEY + FILTER int 0 # TODO rethink spec
-# $VAR1 = [
-#           [
-#             'RR1',
-#             'RR2',
-#             'RR3'
-#           ]
-#         ];
-ok 48 - ANYWHERE + KEY + FILTER int 1 # TODO rethink spec
-not ok 49 - context for incremental searches # TODO spec only
-#   Failed (TODO) test 'context for incremental searches'
-#   at t/data_dpath.t line 223.
-#     Structures begin differing at:
-#          $got = '0'
-#     $expected = ARRAY(0x97a4378)
-not ok 50 # TODO spec only
-#   Failed (TODO) test at t/data_dpath.t line 229.
-#     Structures begin differing at:
-#          $got = '0'
-#     $expected = ARRAY(0x97a3e28)
-not ok 51 - incremental + FILTER int # TODO spec only
-#   Failed (TODO) test 'incremental + FILTER int'
-#   at t/data_dpath.t line 233.
-#     Structures begin differing at:
-#          $got = Data::DPath::Context=HASH(0x8e4c608)
-#     $expected = ARRAY(0x97a3b78)
-ok 52 - ROOT + ANYSTEP
-ok 53 - ROOT
-ok 54 - ANYWHERE
-ok 55 - ROOT + ANYSTEP + FILTER int: plain value
-ok 56 - ROOT + ANYSTEP + FILTER int: ref value
-not ok 57 - ANYWHERE + ANYSTEP + FILTER int # TODO spec only
-#   Failed (TODO) test 'ANYWHERE + ANYSTEP + FILTER int'
-#   at t/data_dpath.t line 275.
-#     Structures begin differing at:
-#          $got->[1] = Does not exist
-#     $expected->[1] = 'ZZZ'
-ok 58 - FILTER eval prepare
-ok 59 - FILTER eval simple true
-ok 60 - FILTER eval simple true with false values
-ok 61 - FILTER eval simple true with strings
-ok 62 - FILTER eval simple false
-ok 63 - FILTER eval simple false with strings
-not ok 64 # TODO spec only
-#   Failed (TODO) test at t/data_dpath.t line 323.
-#     Structures begin differing at:
-#          $got->[0] = Does not exist
-#     $expected->[0] = ARRAY(0x8e4bbf8)
-not ok 65 # TODO spec only
-#   Failed (TODO) test at t/data_dpath.t line 328.
-#     Structures begin differing at:
-#          $got->[0] = Does not exist
-#     $expected->[0] = 'interesting value'
-not ok 66 # TODO spec only
-#   Failed (TODO) test at t/data_dpath.t line 333.
-#     Structures begin differing at:
-#          $got->[0] = Does not exist
-#     $expected->[0] = 'interesting value'
-ok 67 - ROOT + KEYs + FILTER int + KEYs
-ok 68 - ANYWHERE + KEYs + FILTER int + KEYs
-not ok 69 - ROOT + ANYSTEP + FILTER eval + FILTER int # TODO spec only
-#   Failed (TODO) test 'ROOT + ANYSTEP + FILTER eval + FILTER int'
-#   at t/data_dpath.t line 351.
-#     Structures begin differing at:
-#          $got->[0] = Does not exist
-#     $expected->[0] = 'interesting value'
-not ok 70 # TODO spec only
+not ok 7 # TODO spec only
 #   Failed (TODO) test at t/data_dpath.t line 356.
 #     Structures begin differing at:
 #          $got->[0] = Does not exist
 #     $expected->[0] = 'interesting value'
-ok 71 - FILTER eval regex # TODO too dirty, first cleanup _filter_eval
+ok 8 - FILTER eval regex # TODO too dirty, first cleanup _filter_eval
