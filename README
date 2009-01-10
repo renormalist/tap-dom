@@ -9,7 +9,7 @@ SYNOPSIS
         use TAP::Data;
         use Data::Dumper;
         
-    my $tapdata = TAP::Data->new( source => $source );
+        my $tapdata = TAP::Data->new( source => $source );
         print Dumper($tapdata);
 
 FUNCTIONS
@@ -20,37 +20,6 @@ FUNCTIONS
 AUTHOR
     Steffen Schwigon, "<schwigon at cpan.org>"
 
-BUGS
-    Please report any bugs or feature requests to "bug-tap-data at
-    rt.cpan.org", or through the web interface at
-    <http://rt.cpan.org/NoAuth/ReportBug.html?Queue=TAP-Data>. I will be
-    notified, and then you'll automatically be notified of progress on your
-    bug as I make changes.
-
-SUPPORT
-    You can find documentation for this module with the perldoc command.
-
-        perldoc TAP::Data
-
-    You can also look for information at:
-
-    *   RT: CPAN's request tracker
-
-        <http://rt.cpan.org/NoAuth/Bugs.html?Dist=TAP-Data>
-
-    *   AnnoCPAN: Annotated CPAN documentation
-
-        <http://annocpan.org/dist/TAP-Data>
-
-    *   CPAN Ratings
-
-        <http://cpanratings.perl.org/d/TAP-Data>
-
-    *   Search CPAN
-
-        <http://search.cpan.org/dist/TAP-Data>
-
-ACKNOWLEDGEMENTS
 COPYRIGHT & LICENSE
     Copyright 2009 Steffen Schwigon, all rights reserved.
 
