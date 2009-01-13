@@ -5,13 +5,16 @@ use warnings;
 
 use TAP::Parser;
 use YAML::Syck;
-
 use Data::Dumper;
+
+use Sub::Exporter -setup => { exports => [ 'tapdata' ] };
 
 our $VERSION = '0.01';
 
-sub tap2data {
-        my %args = @_;
+# plain function approach
+sub tapdata {
+        # hash or hash ref
+        my %args = @_ == 1 ? %{$_[0]} : @_;
 
         my @results;
         my $plan;
@@ -21,74 +24,70 @@ sub tap2data {
 
         my $parser = new TAP::Parser( { %args } );
         while ( my $result = $parser->next ) {
-                #print ".";
-                #print $result->as_string;
-
                 no strict 'refs';
 
                 my %entry = ();
 
-                # basic info
-                foreach (qw(type as_string raw directive
-                            explanation number description))
-                {
-                        $entry{$_} = $result->$_ unless ( $result->is_plan or
-                                                          $result->is_comment or
-                                                          $result->is_version or
-                                                          $result->is_yaml or
-                                                          $result->is_unknown);
+                # test info
+                $entry{$_} = $result->$_ foreach (qw(raw
+                                                     as_string
+                                                   ));
+
+                if ($result->is_test) {
+                        $entry{$_} = $result->$_ foreach (qw(type
+                                                             directive
+                                                             explanation
+                                                             number
+                                                             description
+                                                           ));
+                        $entry{$_} = $result->$_ ? 1 : 0 foreach (qw(is_ok
+                                                                     is_unplanned
+                                                                   ));
                 }
 
-                # only occasionally basic info
-                foreach (qw(pragma comment bailout)) {
-                        my $meth = "is_$_";
-                        $entry{$meth} = $result->$meth ? 1 : 0;
-                }
+                # plan
+                $plan = $result->as_string if $result->is_plan;
 
-                # more basic info
-                foreach (qw(ok unplanned)) {
-                        my $meth = "is_$_";
-                        $entry{$meth} = $result->$meth ? 1 : 0 unless ( $result->is_plan or
-                                                                        $result->is_comment or
-                                                                        $result->is_version or
-                                                                        $result->is_yaml or
-                                                                        $result->is_unknown);
-                }
-                $entry{is_actual_ok} = $result->is_actual_ok if $result->has_todo;
-
-                # even more basic info
-                foreach (qw(skip todo)) {
-                        my $meth = "has_$_";
-                        $entry{$meth} = $result->$meth ? 1 : 0;
-                }
-
-                # carve out plan
-                ($plan) = $result->as_string =~ /1\.\.(.+)/g if $result->is_plan;
+                # meta info
+                $entry{$_} = $result->$_ ? 1 : 0 foreach (qw(has_skip has_todo));
+                $entry{$_} = $result->$_ ? 1 : 0
+                    foreach (qw( is_pragma
+                                 is_comment
+                                 is_bailout
+                                 is_plan
+                                 is_version
+                                 is_yaml
+                                 is_unknown
+                                 is_test
+                                 is_bailout
+                              ));
+                $entry{is_actual_ok} = $result->has_todo && $result->is_actual_ok ? 1 : 0;
 
                 # yaml becomes content of line before
                 $results[-1]->{diag}{yaml} = $result->data if $result->is_yaml;
 
-                # pragmas
-                my @pragmas = $parser->pragmas;# unless $result->is_plan;
-                push @{$entry{pragmas}}, \@pragmas;
-
                 # Wooosh!
                 push @results, \%entry;
         }
+        @pragmas = $parser->pragmas;
 
         my $tapdata = {
                        tap => {
                                plan          => $plan,
                                results       => \@results,
-                               version       => $parser->version,
+                               pragmas       => \@pragmas,
                                tests_planned => $parser->tests_planned,
                                tests_run     => $parser->tests_run,
+                               version       => $parser->version,
+                               is_good_plan  => $parser->is_good_plan,
                                skip_all      => $parser->skip_all,
                                start_time    => $parser->start_time,
                                end_time      => $parser->end_time,
+                               has_problems  => $parser->has_problems,
+                               exit          => $parser->exit,
+                               parse_errors  => [ $parser->parse_errors ],
                               },
                       };
-
 }
 
 
@@ -104,22 +103,57 @@ TAP::Data - TAP as a consistent data structure.
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
-
-Perhaps a little code snippet.
-
-    use TAP::Data;
-    use Data::Dumper;
-    
-    my $tapdata = TAP::Data->new( source => $source );
+    use TAP::Data 'tapdata';
+    my $tapdata = tapdata( tap => $tap ); # same options as TAP::Parser
     print Dumper($tapdata);
+
+
+=head1 DESCRIPTION
+
+The only purpose of this module is
+A) to define a B<reliable> data structure and
+B) to help create this structure from TAP.
+
+That's useful when you want to analyze the TAP in detail with "data
+tools", e.g., I want to use it with L<Data::DPath|Data::DPath>.
+
+``Reliable'' means that this structure is kind of an API that will not
+change, so your data tools (e.g. Data::DPath paths) can rely on it.
+
 
 =head1 FUNCTIONS
 
-=head2 new
+=head2 tapdata
 
-This is the only interesting functions. Every actions are already
-triggered on instancing.
+This is the only interesting function. It triggers parsing the TAP via
+TAP::Parser and returns a big data structure containing the extracted
+results. No rocket science, just that.
+
+Parameters are passed through to TAP::Parser, usually one of these:
+
+  tap => $some_tap_string
+
+or
+
+  source => $test_file
+
+But there are more, see L<TAP::Parser|TAP::Parser>.
+
+=head1 SOME SPECIAL HANDLING
+
+=head2 yaml diag
+
+YAML diagnostics are assigned to the line before.
+
+I'm not yet sure whether that's a good idea, but it makes evaluating
+the diagnostics easier when they are in the same record as to where
+they should belong.
+
+I admit that it looks somewhat inconsistent to have only the yaml data
+assigned to the entry before and everything else in the yaml entry
+itself.
+
+I'm not sure, help me with feedback.
 
 =head1 AUTHOR
 
@@ -127,12 +161,15 @@ Steffen Schwigon, C<< <schwigon at cpan.org> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-tap-data at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=TAP-Data>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
+Currently I'm not yet sure whether the structure is already
+``reliable''. I will probably call it version 1.0 once I'm fine with
+it.
 
-
-
+Please report any bugs or feature requests to C<bug-tap-data at
+rt.cpan.org>, or through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=TAP-Data>.  I will be
+notified, and then you'll automatically be notified of progress on
+your bug as I make changes.
 
 =head1 SUPPORT
 
@@ -171,8 +208,8 @@ L<http://search.cpan.org/dist/TAP-Data>
 
 Copyright 2009 Steffen Schwigon, all rights reserved.
 
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 
 =cut
