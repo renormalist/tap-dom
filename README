@@ -2,27 +2,29 @@ NAME
     TAP::Data - TAP as a consistent data structure.
 
 SYNOPSIS
-    Quick summary of what the module does.
-
-    Perhaps a little code snippet.
-
-        use TAP::Data;
-        use Data::Dumper;
-        
-        my $tapdata = TAP::Data->new( source => $source );
+        use TAP::Data 'tapdata';
+        my $tapdata = tapdata( tap => $tap ); # same options as TAP::Parser
         print Dumper($tapdata);
 
-FUNCTIONS
-  new
-    This is the only interesting functions. Every actions are already
-    triggered on instancing.
+DESCRIPTION
+
+    The only purpose of this module is A) to define a reliable data
+    structure and B) to help create this structure from TAP.
+
+    That's useful when you want to analyze the TAP in detail with
+    "data tools", e.g., I want to use it with Data::DPath.
+
+    ``Reliable'' means that this structure is kind of an API that will
+    not change, so your data tools (e.g. Data::DPath paths) can rely
+    on it.
 
 AUTHOR
+
     Steffen Schwigon, "<schwigon at cpan.org>"
 
 COPYRIGHT & LICENSE
     Copyright 2009 Steffen Schwigon, all rights reserved.
 
-    This program is free software; you can redistribute it and/or modify it
-    under the same terms as Perl itself.
+    This program is free software; you can redistribute it and/or
+    modify it under the same terms as Perl itself.
 
