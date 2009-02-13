@@ -6,3 +6,4 @@ blib\b
 ^Makefile.old$
 ^Debian
 ^TAP-DOM-
+t/00-suite-meta.t
