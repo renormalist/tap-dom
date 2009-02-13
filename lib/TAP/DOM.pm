@@ -65,6 +65,10 @@ sub new {
                 $entry{is_actual_ok} = $result->has_todo && $result->is_actual_ok ? 1 : 0;
 
                 # yaml becomes content of line before
+                #
+                # TODO this is actually a bad hack only needed for Data::DPath. It should be banned.
+                # and instead provide additionall "typed interconnections" between lines.
+                # One E.g.: belongs_to => (reference of line before)
                 $results[-1]->{diag}{yaml} = $result->data if $result->is_yaml;
 
                 # Wooosh!
@@ -167,7 +171,7 @@ it.
 
 Please report any bugs or feature requests to C<bug-tap-data at
 rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=TAP-Data>.  I will be
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=TAP-DOM>.  I will be
 notified, and then you'll automatically be notified of progress on
 your bug as I make changes.
 

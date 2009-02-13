@@ -1,10 +1,10 @@
 NAME
-    TAP::Data - TAP as a consistent data structure.
+    TAP::DOM - TAP as document data structure.
 
 SYNOPSIS
-        use TAP::Data 'tapdata';
-        my $tapdata = tapdata( tap => $tap ); # same options as TAP::Parser
-        print Dumper($tapdata);
+    use TAP::DOM;
+    my $tapdata = TAP::DOM->new( tap => $tap ); # same options as TAP::Parser
+    print Dumper($tapdata);
 
 DESCRIPTION
 
@@ -12,15 +12,14 @@ DESCRIPTION
     structure and B) to help create this structure from TAP.
 
     That's useful when you want to analyze the TAP in detail with
-    "data tools", e.g., I want to use it with Data::DPath.
+    "data exploration tools", e.g., I want to use it with Data::DPath.
 
     ``Reliable'' means that this structure is kind of an API that will
-    not change, so your data tools (e.g. Data::DPath paths) can rely
-    on it.
+    not change, so your data exploration tools can rely on it.
 
 AUTHOR
 
-    Steffen Schwigon, "<schwigon at cpan.org>"
+    Steffen Schwigon, <schwigon at cpan.org>
 
 COPYRIGHT & LICENSE
     Copyright 2009 Steffen Schwigon, all rights reserved.

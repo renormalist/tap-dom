@@ -3,7 +3,7 @@
 use Test::More tests => 1;
 
 BEGIN {
-	use_ok( 'TAP::Data' );
+	use_ok( 'TAP::DOM' );
 }
 
-diag( "Testing TAP::Data $TAP::Data::VERSION, Perl $], $^X" );
+diag( "Testing TAP::DOM $TAP::DOM::VERSION, Perl $], $^X" );
