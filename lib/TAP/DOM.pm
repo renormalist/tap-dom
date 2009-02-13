@@ -7,8 +7,6 @@ use TAP::Parser;
 use YAML::Syck;
 use Data::Dumper;
 
-#use Sub::Exporter -setup => { exports => [ 'tapdata' ] };
-
 our $VERSION = '0.01';
 
 # plain function approach
@@ -222,6 +220,4 @@ Copyright 2009 Steffen Schwigon, all rights reserved.
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
-
 =cut
-

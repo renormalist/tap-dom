@@ -3,7 +3,8 @@ NAME
 
 SYNOPSIS
     use TAP::DOM;
-    my $tapdata = TAP::DOM->new( tap => $tap ); # same options as TAP::Parser
+    use Data::Dumper;
+    my $tapdata = new TAP::DOM ( tap => $tap ); # same options as TAP::Parser
     print Dumper($tapdata);
 
 DESCRIPTION
@@ -12,7 +13,7 @@ DESCRIPTION
     structure and B) to help create this structure from TAP.
 
     That's useful when you want to analyze the TAP in detail with
-    "data exploration tools", e.g., I want to use it with Data::DPath.
+    "data exploration tools", like Data::DPath.
 
     ``Reliable'' means that this structure is kind of an API that will
     not change, so your data exploration tools can rely on it.
@@ -26,4 +27,3 @@ COPYRIGHT & LICENSE
 
     This program is free software; you can redistribute it and/or
     modify it under the same terms as Perl itself.
-
