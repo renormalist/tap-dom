@@ -9,7 +9,7 @@ SYNOPSIS
 
 DESCRIPTION
 
-    The only purpose of this module is A) to define a reliable data
+    The purpose of this module is A) to define a reliable data
     structure and B) to help create this structure from TAP.
 
     That's useful when you want to analyze the TAP in detail with

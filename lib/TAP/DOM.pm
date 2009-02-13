@@ -117,10 +117,10 @@ A) to define a B<reliable> data structure and
 B) to help create this structure from TAP.
 
 That's useful when you want to analyze the TAP in detail with "data
-tools". I, for instance, use it with L<Data::DPath|Data::DPath>.
+exploration tools", like L<Data::DPath|Data::DPath>.
 
 ``Reliable'' means that this structure is kind of an API that will not
-change, so your data tools (e.g. Data::DPath paths) can rely on it.
+change, so your data tools can rely on it.
 
 =head1 ALPHA WARNING
 
