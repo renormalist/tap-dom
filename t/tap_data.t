@@ -25,8 +25,8 @@ is($tapdata->{tests_planned},  8,     "tests_planned");
 is($tapdata->{version},       13,     "version");
 is($tapdata->{plan},          "1..8", "plan");
 
-is($tapdata->{results}[2]{number},  1,     "[2] number");
-is($tapdata->{results}[2]{is_test}, 1,     "[2] is_test");
-is($tapdata->{results}[2]{is_ok},   1,     "[2] is_ok");
+is($tapdata->{lines}[2]{number},  1,     "[2] number");
+is($tapdata->{lines}[2]{is_test}, 1,     "[2] is_test");
+is($tapdata->{lines}[2]{is_ok},   1,     "[2] is_ok");
 
-is($tapdata->{results}[2]{diag}{yaml}[0]{name}, "Hash one",     "[2]{yaml} Hash one");
+is($tapdata->{lines}[2]{diag}{yaml}[0]{name}, "Hash one",     "[2]{yaml} Hash one");

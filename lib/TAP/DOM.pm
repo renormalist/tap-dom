@@ -17,7 +17,7 @@ sub new {
         my $class = shift;
         my %args = @_ == 1 ? %{$_[0]} : @_;
 
-        my @results;
+        my @lines;
         my $plan;
         my $version;
         my @pragmas;
@@ -69,16 +69,16 @@ sub new {
                 # TODO this is actually a bad hack only needed for Data::DPath. It should be banned.
                 # and instead provide additionall "typed interconnections" between lines.
                 # One E.g.: belongs_to => (reference of line before)
-                $results[-1]->{diag}{yaml} = $result->data if $result->is_yaml;
+                $lines[-1]->{diag}{yaml} = $result->data if $result->is_yaml;
 
                 # Wooosh!
-                push @results, \%entry;
+                push @lines, \%entry;
         }
         @pragmas = $parser->pragmas;
 
         my $tapdata = {
                        plan          => $plan,
-                       results       => \@results,
+                       lines         => \@lines,
                        pragmas       => \@pragmas,
                        tests_planned => $parser->tests_planned,
                        tests_run     => $parser->tests_run,
