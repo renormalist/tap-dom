@@ -5,7 +5,7 @@ use warnings;
 
 use Test::More tests => 8;
 
-use TAP::Data 'tapdata';
+use TAP::DOM;
 use Data::Dumper;
 
 my $tap;
@@ -16,17 +16,17 @@ my $tap;
         close TAP;
 }
 
-my $tapdata = tapdata( tap => $tap );
-#my $tapdata = tapdata( source => '../data-dpath/t/data_dpath.t' );
+my $tapdata = new TAP::DOM( tap => $tap );
+#my $tapdata = tapdata( tap => $tap );
 print Dumper($tapdata);
 
-is($tapdata->{tap}{tests_run},     10,     "tests_run");
-is($tapdata->{tap}{tests_planned},  8,     "tests_planned");
-is($tapdata->{tap}{version},       13,     "version");
-is($tapdata->{tap}{plan},          "1..8", "plan");
+is($tapdata->{tests_run},     10,     "tests_run");
+is($tapdata->{tests_planned},  8,     "tests_planned");
+is($tapdata->{version},       13,     "version");
+is($tapdata->{plan},          "1..8", "plan");
 
-is($tapdata->{tap}{results}[2]{number},  1,     "[2] number");
-is($tapdata->{tap}{results}[2]{is_test}, 1,     "[2] is_test");
-is($tapdata->{tap}{results}[2]{is_ok},   1,     "[2] is_ok");
+is($tapdata->{results}[2]{number},  1,     "[2] number");
+is($tapdata->{results}[2]{is_test}, 1,     "[2] is_test");
+is($tapdata->{results}[2]{is_ok},   1,     "[2] is_ok");
 
-is($tapdata->{tap}{results}[2]{diag}{yaml}[0]{name}, "Hash one",     "[2]{yaml} Hash one");
+is($tapdata->{results}[2]{diag}{yaml}[0]{name}, "Hash one",     "[2]{yaml} Hash one");

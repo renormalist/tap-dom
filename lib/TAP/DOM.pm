@@ -1,4 +1,4 @@
-package TAP::Data;
+package TAP::DOM;
 
 use strict;
 use warnings;
@@ -7,13 +7,14 @@ use TAP::Parser;
 use YAML::Syck;
 use Data::Dumper;
 
-use Sub::Exporter -setup => { exports => [ 'tapdata' ] };
+#use Sub::Exporter -setup => { exports => [ 'tapdata' ] };
 
 our $VERSION = '0.01';
 
 # plain function approach
-sub tapdata {
+sub new {
         # hash or hash ref
+        my $class = shift;
         my %args = @_ == 1 ? %{$_[0]} : @_;
 
         my @results;
@@ -72,26 +73,25 @@ sub tapdata {
         @pragmas = $parser->pragmas;
 
         my $tapdata = {
-                       tap => {
-                               plan          => $plan,
-                               results       => \@results,
-                               pragmas       => \@pragmas,
-                               tests_planned => $parser->tests_planned,
-                               tests_run     => $parser->tests_run,
-                               version       => $parser->version,
-                               is_good_plan  => $parser->is_good_plan,
-                               skip_all      => $parser->skip_all,
-                               start_time    => $parser->start_time,
-                               end_time      => $parser->end_time,
-                               has_problems  => $parser->has_problems,
-                               exit          => $parser->exit,
-                               parse_errors  => [ $parser->parse_errors ],
-                              },
+                       plan          => $plan,
+                       results       => \@results,
+                       pragmas       => \@pragmas,
+                       tests_planned => $parser->tests_planned,
+                       tests_run     => $parser->tests_run,
+                       version       => $parser->version,
+                       is_good_plan  => $parser->is_good_plan,
+                       skip_all      => $parser->skip_all,
+                       start_time    => $parser->start_time,
+                       end_time      => $parser->end_time,
+                       has_problems  => $parser->has_problems,
+                       exit          => $parser->exit,
+                       parse_errors  => [ $parser->parse_errors ],
                       };
+        return bless $tapdata, $class;
 }
 
 
-1; # End of TAP::Data
+1; # End of TAP::DOM
 
 __END__
 
@@ -99,12 +99,12 @@ __END__
 
 =head1 NAME
 
-TAP::Data - TAP as a consistent data structure.
+TAP::DOM - TAP as document data structure.
 
 =head1 SYNOPSIS
 
-    use TAP::Data 'tapdata';
-    my $tapdata = tapdata( tap => $tap ); # same options as TAP::Parser
+    use TAP::DOM;
+    my $tapdata = new TAP::DOM( tap => $tap ); # same options as TAP::Parser
     print Dumper($tapdata);
 
 
@@ -175,7 +175,7 @@ your bug as I make changes.
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc TAP::Data
+    perldoc TAP::DOM
 
 
 You can also look for information at:
@@ -184,19 +184,19 @@ You can also look for information at:
 
 =item * RT: CPAN's request tracker
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=TAP-Data>
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=TAP-DOM>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
-L<http://annocpan.org/dist/TAP-Data>
+L<http://annocpan.org/dist/TAP-DOM>
 
 =item * CPAN Ratings
 
-L<http://cpanratings.perl.org/d/TAP-Data>
+L<http://cpanratings.perl.org/d/TAP-DOM>
 
 =item * Search CPAN
 
-L<http://search.cpan.org/dist/TAP-Data>
+L<http://search.cpan.org/dist/TAP-DOM>
 
 =back
 
