@@ -208,7 +208,11 @@ L<http://search.cpan.org/dist/TAP-DOM>
 =back
 
 
-=head1 ACKNOWLEDGEMENTS
+=head1 REPOSITORY
+
+The public repository is hosted on github:
+
+  git clone git://github.com/renormalist/tap-dom.git
 
 
 =head1 COPYRIGHT & LICENSE
