@@ -114,24 +114,28 @@ TAP::DOM - TAP as document data structure.
 
 =head1 DESCRIPTION
 
-The only purpose of this module is
+The purpose of this module is
 A) to define a B<reliable> data structure and
 B) to help create this structure from TAP.
 
 That's useful when you want to analyze the TAP in detail with "data
-tools", e.g., I want to use it with L<Data::DPath|Data::DPath>.
+tools". I, for instance, use it with L<Data::DPath|Data::DPath>.
 
 ``Reliable'' means that this structure is kind of an API that will not
 change, so your data tools (e.g. Data::DPath paths) can rely on it.
 
+=head1 ALPHA WARNING
+
+The module is useable and already really used but please do not rely
+on it yet in production environment. There is at least one outstanding
+issue that needs clarification. See L</"SOME SPECIAL HANDLING"> below.
 
 =head1 FUNCTIONS
 
-=head2 tapdata
+=head2 new
 
-This is the only interesting function. It triggers parsing the TAP via
-TAP::Parser and returns a big data structure containing the extracted
-results. No rocket science, just that.
+Constructor which immediately triggers parsing the TAP via TAP::Parser
+and returns a big data structure containing the extracted results.
 
 Parameters are passed through to TAP::Parser, usually one of these:
 
@@ -147,17 +151,16 @@ But there are more, see L<TAP::Parser|TAP::Parser>.
 
 =head2 yaml diag
 
-YAML diagnostics are assigned to the line before.
+Currently, YAML diagnostics are assigned to the line before.
 
-I'm not yet sure whether that's a good idea, but it makes evaluating
-the diagnostics easier when they are in the same record as to where
-they should belong.
+It is actually a bad hack only needed for my personal style of using
+Data::DPath to make evaluating the diagnostics easier when they are in
+the same record as to where they semantically belong.
 
-I admit that it looks somewhat inconsistent to have only the yaml data
-assigned to the entry before and everything else in the yaml entry
-itself.
+Anyway, it should be banned and instead additional "typed
+interconnections" between lines should be established, e.g.:
 
-I'm not sure, help me with feedback.
+ belongs_to => (reference of line before).
 
 =head1 AUTHOR
 
