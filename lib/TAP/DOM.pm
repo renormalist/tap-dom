@@ -61,16 +61,25 @@ sub new {
                                  is_bailout
                               ));
                 $entry{is_actual_ok} = $result->has_todo && $result->is_actual_ok ? 1 : 0;
+                $entry{data} = $result->data if $result->is_yaml;
 
                 # yaml becomes content of line before
                 #
                 # TODO this is actually a bad hack only needed for Data::DPath. It should be banned.
                 # and instead provide additionall "typed interconnections" between lines.
                 # One E.g.: belongs_to => (reference of line before)
-                $lines[-1]->{diag}{yaml} = $result->data if $result->is_yaml;
+                # $lines[-1]->{diag}{yaml} = $result->data if $result->is_yaml;
 
                 # Wooosh!
-                push @lines, \%entry;
+                if ($result->is_yaml)
+                {
+                        $lines[-1]->{_children} = [ \%entry ];
+                        # embed this line to the line before, nesting like in
+                        # http://cpansearch.perl.org/src/RJBS/Pod-Elemental-0.003/t/nested-over.t
+                } else
+                {
+                        push @lines, \%entry;
+                }
         }
         @pragmas = $parser->pragmas;
 
