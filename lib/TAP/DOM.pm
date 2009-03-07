@@ -115,9 +115,9 @@ TAP::DOM - TAP as document data structure.
 
 =head1 SYNOPSIS
 
-    use TAP::DOM;
-    my $tapdata = new TAP::DOM( tap => $tap ); # same options as TAP::Parser
-    print Dumper($tapdata);
+ use TAP::DOM;
+ my $tapdata = new TAP::DOM( tap => $tap ); # same options as TAP::Parser
+ print Dumper($tapdata);
 
 
 =head1 DESCRIPTION
@@ -130,13 +130,7 @@ That's useful when you want to analyze the TAP in detail with "data
 exploration tools", like L<Data::DPath|Data::DPath>.
 
 ``Reliable'' means that this structure is kind of an API that will not
-change, so your data tools can rely on it.
-
-=head1 ALPHA WARNING
-
-The module is useable and already really used but please do not rely
-on it yet in production environment. There is at least one outstanding
-issue that needs clarification. See L</"SOME SPECIAL HANDLING"> below.
+change, so your data tools can, well, rely on it.
 
 =head1 FUNCTIONS
 
@@ -155,20 +149,161 @@ or
 
 But there are more, see L<TAP::Parser|TAP::Parser>.
 
-=head1 SOME SPECIAL HANDLING
+=head1 STRUCTURE
 
-=head2 yaml diag
+The data structure is basically a nested hash/array structure with
+keys named after the functions of TAP::Parser that you normally would
+use to extract results.
 
-Currently, YAML diagnostics are assigned to the line before.
+See the TAP example file in C<t/some_tap.txt> and its corresponding
+result structure in C<t/some_tap.dom>.
 
-It is actually a bad hack only needed for my personal style of using
-Data::DPath to make evaluating the diagnostics easier when they are in
-the same record as to where they semantically belong.
+Here is a slightly commented and beautified excerpt of
+C<t/some_tap.dom>:
 
-Anyway, it should be banned and instead additional "typed
-interconnections" between lines should be established, e.g.:
+ bless( {
+  'version'       => 13,
+  'plan'          => '1..6',
+  'tests_planned' => 6
+  'tests_run'     => 8,
+  'is_good_plan'  => 0,
+  'has_problems'  => 2,
+  'skip_all'      => undef,
+  'parse_errors'  => [
+                      'Bad plan.  You planned 6 tests but ran 8.'
+                     ],
+  'pragmas'       => [
+                      'strict'
+                     ],
+  'exit'          => 0,
+  'start_time'    => '1236463400.25151',
+  'end_time'      => '1236463400.25468',
+  'lines' => [
+              {
+               'is_actual_ok' => 0,
+               'is_bailout'   => 0,
+               'is_comment'   => 0,
+               'is_plan'      => 0,
+               'is_pragma'    => 0,
+               'is_test'      => 0,
+               'is_unknown'   => 0,
+               'is_version'   => 1,                      # <---
+               'is_yaml'      => 0,
+               'has_skip'     => 0,
+               'has_todo'     => 0,
+               'raw'          => 'TAP version 13'
+               'as_string'    => 'TAP version 13',
+              },
+              {
+                'is_actual_ok' => 0,
+                'is_bailout'   => 0,
+                'is_comment'   => 0,
+                'is_plan'      => 1,                     # <---
+                'is_pragma'    => 0,
+                'is_test'      => 0,
+                'is_unknown'   => 0,
+                'is_version'   => 0,
+                'is_yaml'      => 0,
+                'has_skip'     => 0,
+                'has_todo'     => 0,
+                'raw'          => '1..6'
+                'as_string'    => '1..6',
+              },
+              {
+                'is_actual_ok' => 0,
+                'is_bailout'   => 0,
+                'is_comment'   => 0,
+                'is_ok'        => 1,                     # <---
+                'is_plan'      => 0,
+                'is_pragma'    => 0,
+                'is_test'      => 1,                     # <---
+                'is_unknown'   => 0,
+                'is_unplanned' => 0,
+                'is_version'   => 0,
+                'is_yaml'      => 0,
+                'has_skip'     => 0,
+                'has_todo'     => 0,
+                'number'       => '1',                   # <---
+                'type'         => 'test',
+                'raw'          => 'ok 1 - use Data::DPath;'
+                'as_string'    => 'ok 1 - use Data::DPath;',
+                'description'  => '- use Data::DPath;',
+                'directive'    => '',
+                'explanation'  => '',
+                '_children'    => [
+                                   # ----- children are the subsequent comment/yaml lines -----
+                                   {
+                                     'is_actual_ok' => 0,
+                                     'is_unknown'   => 0,
+                                     'has_todo'     => 0,
+                                     'is_bailout'   => 0,
+                                     'is_pragma'    => 0,
+                                     'is_version'   => 0,
+                                     'is_comment'   => 0,
+                                     'has_skip'     => 0,
+                                     'is_test'      => 0,
+                                     'is_yaml'      => 1,              # <---
+                                     'is_plan'      => 0,
+                                     'raw'          => '   ---
+     - name: \'Hash one\'
+       value: 1
+     - name: \'Hash two\'
+       value: 2
+   ...'
+                                     'as_string'    => '   ---
+     - name: \'Hash one\'
+       value: 1
+     - name: \'Hash two\'
+       value: 2
+   ...',
+                                     'data'         => [
+                                                        {
+                                                          'value' => '1',
+                                                          'name' => 'Hash one'
+                                                        },
+                                                        {
+                                                          'value' => '2',
+                                                          'name' => 'Hash two'
+                                                        }
+                                                       ],
+                                 }
+                               ],
+              },
+              {
+                'is_actual_ok' => 0,
+                'is_bailout'   => 0,
+                'is_comment'   => 0,
+                'is_ok'        => 1,                     # <---
+                'is_plan'      => 0,
+                'is_pragma'    => 0,
+                'is_test'      => 1,                     # <---
+                'is_unknown'   => 0,
+                'is_unplanned' => 0,
+                'is_version'   => 0,
+                'is_yaml'      => 0,
+                'has_skip'     => 0,
+                'has_todo'     => 0,
+                'explanation'  => '',
+                'number'       => '2',                   # <---
+                'type'         => 'test',
+                'description'  => '- KEYs + PARENT',
+                'directive'    => '',
+                'raw'          => 'ok 2 - KEYs + PARENT'
+                'as_string'    => 'ok 2 - KEYs + PARENT',
+              },
+              # etc., see the rest in t/some_tap.dom ...
+             ],
+ }, 'TAP::DOM')                                          # blessed
 
- belongs_to => (reference of line before).
+
+=head1 NESTED LINES
+
+As you can see above, diagnostic lines (comment or yaml) are nested
+into the line before under a key C<_children> which simply contains an
+array of those comment/yaml line elements.
+
+With this you can recognize where the diagnostic lines semantically
+belong.
 
 =head1 AUTHOR
 
@@ -177,8 +312,8 @@ Steffen Schwigon, C<< <schwigon at cpan.org> >>
 =head1 BUGS
 
 Currently I'm not yet sure whether the structure is already
-``reliable''. I will probably call it version 1.0 once I'm fine with
-it.
+``reliable'' and ``stable'' as is stated in the B<DESCRIPTION>. I will
+probably call it version C<1.0> once I'm fine with it.
 
 Please report any bugs or feature requests to C<bug-tap-data at
 rt.cpan.org>, or through the web interface at
