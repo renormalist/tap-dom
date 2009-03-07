@@ -20,10 +20,10 @@ my $tapdata = new TAP::DOM( tap => $tap );
 #my $tapdata = tapdata( tap => $tap );
 print Dumper($tapdata);
 
-is($tapdata->{tests_run},     10,     "tests_run");
-is($tapdata->{tests_planned},  8,     "tests_planned");
+is($tapdata->{tests_run},     8,     "tests_run");
+is($tapdata->{tests_planned},  6,     "tests_planned");
 is($tapdata->{version},       13,     "version");
-is($tapdata->{plan},          "1..8", "plan");
+is($tapdata->{plan},          "1..6", "plan");
 
 is($tapdata->{lines}[2]{number},  1,     "[2] number");
 is($tapdata->{lines}[2]{is_test}, 1,     "[2] is_test");
