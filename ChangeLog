@@ -1,3 +1,14 @@
+2009-03-08  Steffen Schwigon  <ss5@renormalist.net>
+
+	* 0.02
+
+	* yaml and comment lines are now assigned to the line before
+	under the key {_children}
+
+	* improved documentation
+
+	* less redundant test suite to better serve as documentation
+
 2009-02-13  Steffen Schwigon  <ss5@renormalist.net>
 
 	* 0.01

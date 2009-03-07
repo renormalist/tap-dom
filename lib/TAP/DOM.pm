@@ -7,7 +7,7 @@ use TAP::Parser;
 use YAML::Syck;
 use Data::Dumper;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 # plain function approach
 sub new {
