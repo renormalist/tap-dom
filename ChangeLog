@@ -1,3 +1,9 @@
+2009-04-17  Steffen Schwigon  <ss5@renormalist.net>
+
+	* 0.03
+
+	* support for summary results from TAP::Parser::Aggregator
+
 2009-03-08  Steffen Schwigon  <ss5@renormalist.net>
 
 	* 0.02
