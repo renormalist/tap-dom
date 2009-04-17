@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use TAP::Parser;
+use TAP::Parser::Aggregator;
 use YAML::Syck;
 use Data::Dumper;
 
@@ -22,6 +23,10 @@ sub new {
         my $bailout;
 
         my $parser = new TAP::Parser( { %args } );
+
+        my $aggregate = new TAP::Parser::Aggregator;
+        $aggregate->start;
+
         while ( my $result = $parser->next ) {
                 no strict 'refs';
 
@@ -84,6 +89,38 @@ sub new {
         }
         @pragmas = $parser->pragmas;
 
+        $aggregate->add( main => $parser );
+        $aggregate->stop;
+
+        my %summary = (
+                       failed          => $aggregate->failed,
+                       parse_errors    => $aggregate->parse_errors,
+                       passed          => $aggregate->passed,
+                       skipped         => $aggregate->skipped,
+                       todo            => $aggregate->todo || 0,
+                       todo_passed     => $aggregate->todo_passed || 0,
+                       wait            => $aggregate->wait || 0,
+                       exit            => $aggregate->exit || 0,
+
+                       descriptions    => {
+                                           failed          => [ $aggregate->failed ],
+                                           parse_errors    => [ $aggregate->parse_errors ],
+                                           passed          => [ $aggregate->passed ],
+                                           skipped         => [ $aggregate->skipped ],
+                                           todo            => [ $aggregate->todo ],
+                                           todo_passed     => [ $aggregate->todo_passed ],
+                                           wait            => [ $aggregate->wait ],
+                                           exit            => [ $aggregate->exit ],
+                                          },
+                       elapsed         => $aggregate->elapsed,
+                       elapsed_timestr => $aggregate->elapsed_timestr,
+                       all_passed      => $aggregate->all_passed ? 1 : 0,
+                       status          => $aggregate->get_status,
+                       total           => $aggregate->total,
+                       has_problems    => $aggregate->has_problems ? 1 : 0,
+                       has_errors      => $aggregate->has_errors ? 1 : 0,
+                      );
+
         my $tapdata = {
                        plan          => $plan,
                        lines         => \@lines,
@@ -98,6 +135,7 @@ sub new {
                        has_problems  => $parser->has_problems,
                        exit          => $parser->exit,
                        parse_errors  => [ $parser->parse_errors ],
+                       summary       => \%summary,
                       };
         return bless $tapdata, $class;
 }
