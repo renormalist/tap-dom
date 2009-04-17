@@ -186,7 +186,9 @@ See the TAP example file in C<t/some_tap.txt> and its corresponding
 result structure in C<t/some_tap.dom>.
 
 Here is a slightly commented and beautified excerpt of
-C<t/some_tap.dom>:
+C<t/some_tap.dom>. Due to it's beeing manually washed for readability
+there might be errors in it, so for final reference, dump a DOM by
+yourself.
 
  bless( {
   'version'       => 13,
