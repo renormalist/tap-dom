@@ -93,15 +93,14 @@ sub new {
         $aggregate->stop;
 
         my %summary = (
-                       failed          => $aggregate->failed,
-                       parse_errors    => $aggregate->parse_errors,
-                       passed          => $aggregate->passed,
-                       skipped         => $aggregate->skipped,
-                       todo            => $aggregate->todo || 0,
-                       todo_passed     => $aggregate->todo_passed || 0,
-                       wait            => $aggregate->wait || 0,
-                       exit            => $aggregate->exit || 0,
-
+                       failed          => scalar $aggregate->failed,
+                       parse_errors    => scalar $aggregate->parse_errors,
+                       passed          => scalar $aggregate->passed,
+                       skipped         => scalar $aggregate->skipped,
+                       todo            => scalar $aggregate->todo,
+                       todo_passed     => scalar $aggregate->todo_passed,
+                       wait            => scalar $aggregate->wait,
+                       exit            => scalar $aggregate->exit,
                        descriptions    => {
                                            failed          => [ $aggregate->failed ],
                                            parse_errors    => [ $aggregate->parse_errors ],
