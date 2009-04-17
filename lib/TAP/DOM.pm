@@ -207,6 +207,31 @@ yourself.
   'exit'          => 0,
   'start_time'    => '1236463400.25151',
   'end_time'      => '1236463400.25468',
+  # for the meaning of this summary see also TAP::Parser::Aggregator.
+  'summary' => {
+                 'status'          => 'FAIL',
+                 'total'           => 8,
+                 'passed'          => 6,
+                 'failed'          => 2,
+                 'all_passed'      => 0,
+                 'skipped'         => 1,
+                 'todo'            => 4,
+                 'todo_passed'     => 2,
+                 'parse_errors'    => 1,
+                 'has_errors'      => 1,
+                 'has_problems'    => 1,
+                 'exit'            => 0,
+                 'wait'            => 0
+                 'elapsed'         => bless( [
+                                              0,
+                                              '0',
+                                              0,
+                                              0,
+                                              0,
+                                              0
+                                             ], 'Benchmark' ),
+                 'elapsed_timestr' => ' 0 wallclock secs ( 0.00 usr +  0.00 sys =  0.00 CPU)',
+               },
   'lines' => [
               {
                'is_actual_ok' => 0,
