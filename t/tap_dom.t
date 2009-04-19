@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 18;
 
 use TAP::DOM;
 use Data::Dumper;
@@ -32,3 +32,12 @@ is($tapdata->{lines}[2]{is_ok},   1,     "[2] is_ok");
 
 is($tapdata->{lines}[2]{_children}[0]{data}[0]{name}, "Hash one",     "[2]...{data}");
 
+is($tapdata->{summary}{todo},         4,      "summary todo");
+is($tapdata->{summary}{total},        8,      "summary total");
+is($tapdata->{summary}{passed},       6,      "summary passed");
+is($tapdata->{summary}{failed},       2,      "summary failed");
+is($tapdata->{summary}{exit},         0,      "summary exit");
+is($tapdata->{summary}{wait},         0,      "summary wait");
+is($tapdata->{summary}{status},       "FAIL", "summary status");
+is($tapdata->{summary}{all_passed},   0,      "summary all_passed");
+is($tapdata->{summary}{has_problems}, 1,      "summary has_problems");
