@@ -76,7 +76,7 @@ sub new {
                 # $lines[-1]->{diag}{yaml} = $result->data if $result->is_yaml;
 
                 # Wooosh!
-                if ($result->is_yaml or $result->is_comment)
+                if ($result->is_yaml or $result->is_comment and @lines)
                 {
                         # embed yaml/comment lines to the line before,
                         # nesting like in
