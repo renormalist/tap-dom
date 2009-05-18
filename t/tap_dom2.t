@@ -29,7 +29,7 @@ is($tapdata->{lines}[2]{number},  1,     "[2] number");
 is($tapdata->{lines}[2]{is_test}, 1,     "[2] is_test");
 is($tapdata->{lines}[2]{is_ok},   1,     "[2] is_ok");
 
-diag Dumper($tapdata->{lines});
+#diag Dumper($tapdata->{lines});
 is($tapdata->{lines}[2]{_children}[0]{data}{LOC}{CPU0}, "1136220",     "[2]...{data}");
 
 is($tapdata->{summary}{todo},         0,      "summary todo");

@@ -1,3 +1,9 @@
+2009-05-18  Steffen Schwigon  <ss5@renormalist.net>
+
+	* 0.04
+
+	* Fix error with comment lines before everything else
+
 2009-04-17  Steffen Schwigon  <ss5@renormalist.net>
 
 	* 0.03
