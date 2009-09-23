@@ -1,3 +1,8 @@
+2009-09-23  Steffen Schwigon  <steffen.schwigon@amd.com>
+
+	* Allow to create more terse DOMs by providing a hash of items
+	that should not be included.
+
 2009-05-18  Steffen Schwigon  <ss5@renormalist.net>
 
 	* 0.04

@@ -8,7 +8,8 @@ use TAP::Parser::Aggregator;
 use YAML::Syck;
 use Data::Dumper;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
+our %IGNORE_DETAIL = ();
 
 # plain function approach
 sub new {
@@ -33,20 +34,17 @@ sub new {
                 my %entry = ();
 
                 # test info
-                $entry{$_} = $result->$_ foreach (qw(raw
-                                                     as_string
-                                                   ));
+                foreach (qw(raw as_string )) {
+                        $entry{$_} = $result->$_ unless $IGNORE_DETAIL{$_};
+                }
 
                 if ($result->is_test) {
-                        $entry{$_} = $result->$_ foreach (qw(type
-                                                             directive
-                                                             explanation
-                                                             number
-                                                             description
-                                                           ));
-                        $entry{$_} = $result->$_ ? 1 : 0 foreach (qw(is_ok
-                                                                     is_unplanned
-                                                                   ));
+                        foreach (qw(type directive explanation number description )) {
+                                $entry{$_} = $result->$_ unless $IGNORE_DETAIL{$_};
+                        }
+                        foreach (qw(is_ok is_unplanned )) {
+                                $entry{$_} = $result->$_ ? 1 : 0 unless $IGNORE_DETAIL{$_};
+                        }
                 }
 
                 # plan
@@ -54,19 +52,13 @@ sub new {
 
                 # meta info
                 $entry{$_} = $result->$_ ? 1 : 0 foreach (qw(has_skip has_todo));
-                $entry{$_} = $result->$_ ? 1 : 0
-                    foreach (qw( is_pragma
-                                 is_comment
-                                 is_bailout
-                                 is_plan
-                                 is_version
-                                 is_yaml
-                                 is_unknown
-                                 is_test
-                                 is_bailout
-                              ));
+                foreach (qw( is_pragma is_comment is_bailout is_plan
+                             is_version is_yaml is_unknown is_test is_bailout ))
+                {
+                        $entry{$_} = $result->$_ ? 1 : 0 unless $IGNORE_DETAIL{$_};
+                }
                 $entry{is_actual_ok} = $result->has_todo && $result->is_actual_ok ? 1 : 0;
-                $entry{data} = $result->data if $result->is_yaml;
+                $entry{data} = $result->data if $result->is_yaml && !$IGNORE_DETAIL{data};
 
                 # yaml becomes content of line before
                 #
@@ -153,7 +145,7 @@ The purpose of this module is
 A) to define a B<reliable> data structure and
 B) to help create this structure from TAP.
 
-That's useful when you want to analyze the TAP in detail with "data
+That is useful when you want to analyze the TAP in detail with "data
 exploration tools", like L<Data::DPath|Data::DPath>.
 
 ``Reliable'' means that this structure is kind of an API that will not
@@ -175,6 +167,39 @@ or
   source => $test_file
 
 But there are more, see L<TAP::Parser|TAP::Parser>.
+
+=head1 IGNORE DETAILS
+
+You can make the DOM a bit more terse if you do not need some
+information by setting C<$TAP::DOM::IGNORE_DETAIL>. This is a hash
+which can contain keys of unneded details. Currently supported are:
+
+ as_string
+ directive
+ explanation
+ description
+ raw
+ type
+ number
+ is_ok
+ is_yaml
+ is_test
+ is_plan
+ is_pragma
+ is_comment
+ is_bailout
+ is_version
+ is_unknown
+ is_bailout
+ is_unplanned
+
+Use it with C<local>:
+
+ {
+   local $TAP::DOME::IGNORE_DETAIL = ( raw       => 1,
+                                       as_string => 1 );
+   $tapdom = TAP::DOM->new (tap => $tap);
+ }
 
 =head1 STRUCTURE
 
