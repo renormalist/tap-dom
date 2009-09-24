@@ -11,4 +11,6 @@ MANIFEST*
 Debian*
 TAP-DOM-*
 cover_db
-
+nytprof.out
+nytprof*
+benchmarks_*

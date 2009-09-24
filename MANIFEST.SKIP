@@ -7,3 +7,6 @@ blib\b
 ^Debian
 ^TAP-DOM-
 t/00-suite-meta.t
+nytprof.out
+nytprof
+benchmarks
