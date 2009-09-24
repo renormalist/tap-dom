@@ -154,8 +154,8 @@ change, so your data tools can, well, rely on it.
 Constructor which immediately triggers parsing the TAP via TAP::Parser
 and returns a big data structure containing the extracted results.
 
-All parameters are passed through to TAP::Parser (except
-C<ignore_details>, see next chapter). Usually just one of those:
+All parameters (except C<ignore>, see section "HOW TO STRIP DETAILS")
+are passed through to TAP::Parser. Usually just one of those:
 
   tap => $some_tap_string
 

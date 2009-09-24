@@ -18,7 +18,7 @@ my $tap;
 
 my $tapdata = new TAP::DOM( tap => $tap );
 #my $tapdata = tapdata( tap => $tap );
-print Dumper($tapdata);
+# print Dumper($tapdata);
 
 is($tapdata->{tests_run},      1, "tests_run");
 is($tapdata->{tests_planned},  1, "tests_planned");
