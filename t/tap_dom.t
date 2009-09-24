@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 18;
+use Test::More;
 
 use TAP::DOM;
 use Data::Dumper;
@@ -18,7 +18,7 @@ my $tap;
 
 my $tapdata = new TAP::DOM( tap => $tap );
 #my $tapdata = tapdata( tap => $tap );
-print Dumper($tapdata);
+print STDERR Dumper($tapdata);
 
 is($tapdata->{tests_run},     8,     "tests_run");
 is($tapdata->{tests_planned},  6,     "tests_planned");
@@ -29,6 +29,8 @@ is($tapdata->{lines}[2]{number},  1,     "[2] number");
 is($tapdata->{lines}[2]{is_test}, 1,     "[2] is_test");
 is($tapdata->{lines}[2]{is_ok},   1,     "[2] is_ok");
 is($tapdata->{lines}[2]{is_ok},   1,     "[2] is_ok");
+is($tapdata->{lines}[2]{raw},       "ok 1 - use Data::DPath;",     "[2] raw");
+is($tapdata->{lines}[2]{as_string}, "ok 1 - use Data::DPath;",     "[2] as_string");
 
 is($tapdata->{lines}[2]{_children}[0]{data}[0]{name}, "Hash one",     "[2]...{data}");
 
@@ -41,3 +43,5 @@ is($tapdata->{summary}{wait},         0,      "summary wait");
 is($tapdata->{summary}{status},       "FAIL", "summary status");
 is($tapdata->{summary}{all_passed},   0,      "summary all_passed");
 is($tapdata->{summary}{has_problems}, 1,      "summary has_problems");
+
+done_testing();
