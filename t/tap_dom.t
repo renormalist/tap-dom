@@ -18,7 +18,7 @@ my $tap;
 
 my $tapdata = new TAP::DOM( tap => $tap );
 #my $tapdata = tapdata( tap => $tap );
-print STDERR Dumper($tapdata);
+# print STDERR Dumper($tapdata);
 
 is($tapdata->{tests_run},     8,     "tests_run");
 is($tapdata->{tests_planned},  6,     "tests_planned");

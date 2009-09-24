@@ -1,5 +1,6 @@
 package TAP::DOM;
 
+use 5.006;
 use strict;
 use warnings;
 
@@ -61,18 +62,15 @@ sub new {
                         $entry{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
                 }
                 $entry{is_actual_ok} = $result->has_todo && $result->is_actual_ok ? 1 : 0 unless $IGNORE{is_actual_ok};
-                $entry{data} = $result->data if $result->is_yaml && !$IGNORE{data};
+                $entry{data}         = $result->data if $result->is_yaml && !$IGNORE{data};
+
 
                 # yaml and comments are taken as children of the line before
-
-                # Wooosh!
                 if ($result->is_yaml or $result->is_comment and @lines)
                 {
-                        # embed yaml/comment lines to the line before,
-                        # nesting like in
-                        # http://cpansearch.perl.org/src/RJBS/Pod-Elemental-0.003/t/nested-over.t
                         push @{ $lines[-1]->{_children} }, \%entry;
-                } else
+                }
+                else
                 {
                         push @lines, \%entry;
                 }
