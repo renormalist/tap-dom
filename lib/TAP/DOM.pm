@@ -158,8 +158,9 @@ change, so your data tools can, well, rely on it.
 Constructor which immediately triggers parsing the TAP via TAP::Parser
 and returns a big data structure containing the extracted results.
 
-All parameters (except C<ignore>, see section "HOW TO STRIP DETAILS")
-are passed through to TAP::Parser. Usually just one of those:
+All parameters (except C<ignore> and C<ignorelines>, see section "HOW
+TO STRIP DETAILS") are passed through to TAP::Parser. Usually just one
+of those:
 
   tap => $some_tap_string
 
@@ -355,9 +356,13 @@ belong.
 =head1 HOW TO STRIP DETAILS
 
 You can make the DOM a bit more terse (i.e., less blown up) if you do
-not need every detail. For this provide the C<ignore> option to
-new(). It is an array ref specifying keys that should not be contained
-in the TAP-DOM. Currently supported are:
+not need every detail.
+
+=head2 Strip unneccessary TAP-DOM fields
+
+For this provide the C<ignore> option to new(). It is an array ref
+specifying keys that should not be contained in the TAP-DOM. Currently
+supported are:
 
  has_todo
  has_skip
@@ -386,6 +391,24 @@ Use it like this:
    $tapdom = TAP::DOM->new (tap    => $tap,
                             ignore => [ qw( raw as_string ) ],
                            );
+
+=head2 Strip unneccessary lines
+
+You can ignore complete lines from the input TAP as if they weren't
+existing. Of course you can break the TAP with this, so usually you
+only apply this to non-TAP lines or diagnostics you are not interested
+in.
+
+My primary use-case is TAP with large parts of logfiles included with
+a prefixed "## " just for dual-using the TAP also as an archive of the
+log. When evaluating the TAP later I leave those log lines out because
+they only blow up the memory for the TAP-DOM:
+
+   $tapdom = TAP::DOM->new (tap         => $tap,
+                            ignorelines => qr/^## /,
+                           );
+
+See C<t/some_tap_ignore_lines.t> for an example.
 
 =head1 AUTHOR
 
