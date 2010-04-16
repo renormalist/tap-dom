@@ -14,7 +14,7 @@ requires 'YAML::Syck';
 requires 'Sub::Exporter';
 
 author_tests('xt');
-test_requires 'Test::More';
+test_requires 'Test::More' => 0.88;
 
 auto_install;
 
