@@ -22,8 +22,11 @@ sub new {
         my @pragmas;
         my $bailout;
 
-        my %IGNORE = map { $_ => 1 } @{$args{ignore}};
+        my %IGNORE      = map { $_ => 1 } @{$args{ignore}};
+        my $IGNORELINES = $args{ignorelines};
         delete $args{ignore};
+        delete $args{ignorelines};
+
         my $parser = new TAP::Parser( { %args } );
 
         my $aggregate = new TAP::Parser::Aggregator;
@@ -31,6 +34,8 @@ sub new {
 
         while ( my $result = $parser->next ) {
                 no strict 'refs';
+
+                next if $IGNORELINES && $result->raw =~ m/$IGNORELINES/;
 
                 my %entry = ();
 
