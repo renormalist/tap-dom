@@ -6,13 +6,15 @@ name     'TAP-DOM';
 all_from 'lib/TAP/DOM.pm';
 author   'Steffen Schwigon <schwigon@cpan.org>';
 
+author_requires 'Module::Install::AuthorTests';
+
 requires 'Test::Harness' => 3.0;
 requires 'Data::Dumper';
 requires 'YAML::Syck';
 requires 'Sub::Exporter';
 
+author_tests('xt');
 test_requires 'Test::More';
-tests_recursive;
 
 auto_install;
 
