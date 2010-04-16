@@ -16,6 +16,6 @@ tests_recursive;
 
 auto_install;
 
-#makemaker_args dist => { PREOP => 'pod2text lib/TAP/DOM.pm > README' } ;
+repository 'git://github.com/renormalist/tap-dom.git';
 
 WriteAll;

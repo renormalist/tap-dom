@@ -1,5 +1,7 @@
 2009-09-24  Steffen Schwigon  <ss5@renormalist.net>
 
+	* 0.05
+
 	* Allow to create more terse DOMs by accepting an "ignore" option
 	to declare items that should not be included.
 

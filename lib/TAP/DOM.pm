@@ -9,9 +9,8 @@ use TAP::Parser::Aggregator;
 use YAML::Syck;
 use Data::Dumper;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
-# plain function approach
 sub new {
         # hash or hash ref
         my $class = shift;
