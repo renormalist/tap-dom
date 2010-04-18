@@ -17,7 +17,7 @@ my $tap;
 }
 
 # ==================== complete TAP-DOM ====================
-my $tapdata = new TAP::DOM( tap => $tap, version => 13 );
+my $tapdata = new TAP::DOM( tap => $tap); # needs Test::Harness 3.22: , version => 13 );
 #diag Dumper($tapdata);
 is($tapdata->{tests_run},     2,     "tests_run");
 is($tapdata->{tests_planned},  2,     "tests_planned");

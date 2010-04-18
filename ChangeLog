@@ -1,3 +1,10 @@
+2010-04-19  Steffen Schwigon  <ss5@renormalist.net>
+
+	* 0.07
+
+	* Bummer! I shouldn't work too late at night... Using
+	Test::Harness features from the future is too bleading edge.
+
 2010-04-16  Steffen Schwigon  <ss5@renormalist.net>
 
 	* 0.06

@@ -9,7 +9,7 @@ use TAP::Parser::Aggregator;
 use YAML::Syck;
 use Data::Dumper;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub new {
         # hash or hash ref
