@@ -544,17 +544,53 @@ respective methods on single entries:
  if ($tapdom->{lines}[4]->is_ok)   {...}
  ...
 
+or with even less direct hash access
+
+ if ($tapdom->lines->[4]->is_test) {...}
+ if ($tapdom->lines->[4]->is_ok)   {...}
+ ...
+
 =head2 Access bitset attributes via bit comparisons
 
-You can use constants that represent the respective bits in
+You can also use constants that represent the respective bits in
 expressions like this:
 
  if ($tapdom->{lines}[4]{is_has} | $TAP::DOM::IS_TEST) {...}
 
-The constants can be imported into your namespace:
+And the constants can be imported into your namespace:
 
  use TAP::DOM ':constants';
  if ($tapdom->{lines}[4]{is_has} | $IS_TEST ) {...}
+
+=head1 ACCESSORS
+
+=head2 end_time
+
+=head2 exit
+
+=head2 has_problems
+
+=head2 is_good_plan
+
+=head2 parse_errors
+
+=head2 plan
+
+=head2 pragmas
+
+=head2 skip_all
+
+=head2 start_time
+
+=head2 summary
+
+=head2 tapdom_config
+
+=head2 tests_planned
+
+=head2 tests_run
+
+=head2 version
 
 =head1 AUTHOR
 

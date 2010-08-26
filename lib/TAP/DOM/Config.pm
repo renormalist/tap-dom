@@ -26,7 +26,9 @@ TAP::DOM::Config - Accessors for TAP::DOM specific parse config
 
 The C<tapdom_config> part covers TAP::DOM specific parse options.
 
-=head1 ACCESSORS
+=head1 ACCESSORS & METHODS
+
+=head2 new - constructor
 
 =head2 ignore
 

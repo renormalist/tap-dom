@@ -51,7 +51,9 @@ get the actual values of C<is_*> and C<has_*> attributes transparently
 regardless of their storage as hash entries or bitsets; plus normal
 accessors to all other entry fields.
 
-=head1 ACCESSORS
+=head1 ACCESSORS & METHODS
+
+=head2 new - constructor
 
 =head2 as_string
 

@@ -39,7 +39,9 @@ TAP::DOM::Summary - Accessors for TAP::DOM summary part
 
 The C<summary> part covers aggregated results from TAP::Parser::Aggregator.
 
-=head1 ACCESSORS
+=head1 ACCESSORS & METHODS
+
+=head2 new - constructor
 
 =head2 all_passed
 
