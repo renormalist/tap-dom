@@ -10,3 +10,5 @@ t/00-suite-meta.t
 nytprof.out
 nytprof
 benchmarks
+stats.\.txt
+TODO.org
