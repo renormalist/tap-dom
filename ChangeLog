@@ -1,16 +1,44 @@
+2010-08-26  Steffen Schwigon  <ss5@renormalist.net>
+
+	* 0.10
+
+	* new option "usebitsets":
+	- When creating a TAP::DOM with new(usebitsets => 1) then all
+	  the 'has_*' and 'is_*' attributes are stored in a common
+	  bitset entry 'is_has' with their respective bits set.
+	  This reduces the size of a TAP::DOM remarkably (by ~40%
+	  for a large TAP-DOM) and is meant as an optimization
+	  option for memory constrained problems.
+
+	* data structure now with classes and accessors:
+	- TAP::DOM::Entry -- all single line entries are now blessed to this
+	  providing methods to get the actual values of 'is_*' and
+	  'has_*' attributes transparently regardless of their
+	  storage as hash entries or bitsets; plus normal accessors to all
+	  other entry fields.
+	- TAP::DOM::Summary -- the 'summary' part that covers aggregated
+	  results
+	- TAP::DOM::Config -- the 'tapdom_config' part that covers
+	  parse options
+
+	* Additional entry "tapdom_config" that stores the used TAP::DOM
+	  specific options (ignore, ignorelines, usebitsets).
+
+	* More tests and benchmarks for evaluating speed/memory footprint.
+
 2010-04-19  Steffen Schwigon  <ss5@renormalist.net>
 
 	* 0.07
 
 	* Bummer! I shouldn't work too late at night... Using
-	Test::Harness features from the future is too bleading edge.
+	  Test::Harness features from the future is too bleading edge.
 
 2010-04-16  Steffen Schwigon  <ss5@renormalist.net>
 
 	* 0.06
 
 	* New option "ignorelines" to strip unneccessary lines from the
-	TAP that would otherwise just blow-up memory in the DOM.
+ 	  TAP that would otherwise just blow-up memory in the DOM.
 
 	* distribution maintenance
 
@@ -19,7 +47,7 @@
 	* 0.05
 
 	* Allow to create more terse DOMs by accepting an "ignore" option
-	to declare items that should not be included.
+	  to declare items that should not be included.
 
 2009-05-18  Steffen Schwigon  <ss5@renormalist.net>
 
@@ -38,7 +66,7 @@
 	* 0.02
 
 	* yaml and comment lines are now assigned to the line before
-	under the key {_children}
+	  under the key {_children}
 
 	* improved documentation
 
