@@ -6,14 +6,19 @@ use warnings;
 
 require TAP::DOM;
 
-sub new {
-        # hash or hash ref
-        my $class = shift;
-        my %args = @_ == 1 ? %{$_[0]} : @_;
-
-        my $entry = { };
-        return bless $entry, $class;
-}
+use Class::XSAccessor
+    chained     => 1,
+    constructor => 'new',
+    accessors   => [qw( raw
+                        type
+                        data
+                        number
+                        as_string
+                        directive
+                        description
+                        explanation
+                        _children
+                     )];
 
 BEGIN {
     no strict 'refs';
