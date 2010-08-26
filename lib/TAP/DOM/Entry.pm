@@ -34,9 +34,67 @@ BEGIN {
     }
 }
 
-# sub is_test {
-#     my ($self) = @_;
-#     defined $self->{is_has} ? $self->{is_has} | $TAP::DOM::IS_TEST : $self->{is_test};
-# }
-
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TAP::DOM::Entry - Accessors for TAP::DOM line entries
+
+=head1 DESCRIPTION
+
+All single line entries are blessed to this class providing methods to
+get the actual values of C<is_*> and C<has_*> attributes transparently
+regardless of their storage as hash entries or bitsets; plus normal
+accessors to all other entry fields.
+
+=head1 ACCESSORS
+
+=head2 as_string
+
+=head2 _children
+
+=head2 data
+
+=head2 description
+
+=head2 directive
+
+=head2 explanation
+
+=head2 has_skip
+
+=head2 has_todo
+
+=head2 is_actual_ok
+
+=head2 is_bailout
+
+=head2 is_comment
+
+=head2 is_ok
+
+=head2 is_plan
+
+=head2 is_pragma
+
+=head2 is_test
+
+=head2 is_unknown
+
+=head2 is_unplanned
+
+=head2 is_version
+
+=head2 is_yaml
+
+=head2 number
+
+=head2 raw
+
+=head2 type
+
+=cut
