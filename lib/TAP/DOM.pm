@@ -5,12 +5,14 @@ use strict;
 use warnings;
 
 use TAP::DOM::Entry;
+use TAP::DOM::Summary;
+use TAP::DOM::Config;
 use TAP::Parser;
 use TAP::Parser::Aggregator;
 use YAML::Syck;
 use Data::Dumper;
 
-our $VERSION = '0.08';
+our $VERSION = '0.10';
 
 our $IS_PLAN      = 1;
 our $IS_OK        = 2;
@@ -174,29 +176,31 @@ sub new {
         $aggregate->add( main => $parser );
         $aggregate->stop;
 
-        my %summary = (
-                       failed          => scalar $aggregate->failed,
-                       parse_errors    => scalar $aggregate->parse_errors,
-                       passed          => scalar $aggregate->passed,
-                       skipped         => scalar $aggregate->skipped,
-                       todo            => scalar $aggregate->todo,
-                       todo_passed     => scalar $aggregate->todo_passed,
-                       wait            => scalar $aggregate->wait,
-                       exit            => scalar $aggregate->exit,
-                       elapsed         => $aggregate->elapsed,
-                       elapsed_timestr => $aggregate->elapsed_timestr,
-                       all_passed      => $aggregate->all_passed ? 1 : 0,
-                       status          => $aggregate->get_status,
-                       total           => $aggregate->total,
-                       has_problems    => $aggregate->has_problems ? 1 : 0,
-                       has_errors      => $aggregate->has_errors ? 1 : 0,
-                      );
+        my $summary = TAP::DOM::Summary->new
+         (
+          failed          => scalar $aggregate->failed,
+          parse_errors    => scalar $aggregate->parse_errors,
+          passed          => scalar $aggregate->passed,
+          skipped         => scalar $aggregate->skipped,
+          todo            => scalar $aggregate->todo,
+          todo_passed     => scalar $aggregate->todo_passed,
+          wait            => scalar $aggregate->wait,
+          exit            => scalar $aggregate->exit,
+          elapsed         => $aggregate->elapsed,
+          elapsed_timestr => $aggregate->elapsed_timestr,
+          all_passed      => $aggregate->all_passed ? 1 : 0,
+          status          => $aggregate->get_status,
+          total           => $aggregate->total,
+          has_problems    => $aggregate->has_problems ? 1 : 0,
+          has_errors      => $aggregate->has_errors ? 1 : 0,
+         );
 
-        my %tapdom_config = (
-                             ignore      => \%IGNORE,
-                             ignorelines => $IGNORELINES,
-                             usebitsets  => $USEBITSETS,
-                            );
+        my $tapdom_config = TAP::DOM::Config->new
+         (
+          ignore      => \%IGNORE,
+          ignorelines => $IGNORELINES,
+          usebitsets  => $USEBITSETS,
+         );
 
         my $tapdata = {
                        plan          => $plan,
@@ -212,8 +216,8 @@ sub new {
                        has_problems  => $parser->has_problems,
                        exit          => $parser->exit,
                        parse_errors  => [ $parser->parse_errors ],
-                       summary       => \%summary,
-                       tapdom_config => \%tapdom_config,
+                       summary       => $summary,
+                       tapdom_config => $tapdom_config,
                       };
         return bless $tapdata, $class;
 }
