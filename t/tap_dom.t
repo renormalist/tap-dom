@@ -28,13 +28,11 @@ is($tapdata->{plan},      "1..6", "plan");
 is($tapdata->{lines}[2]{number},  1,                               "[2] number");
 is($tapdata->{lines}[2]{is_test}, 1,                               "[2] is_test");
 is($tapdata->{lines}[2]{is_ok},   1,                               "[2] is_ok");
-is($tapdata->{lines}[2]{is_ok},   1,                               "[2] is_ok");
 is($tapdata->{lines}[2]{raw},       "ok 1 - use Data::DPath;",     "[2] raw");
 is($tapdata->{lines}[2]{as_string}, "ok 1 - use Data::DPath;",     "[2] as_string");
 
 is($tapdata->lines->[2]->number,    1,                             "[2] number via methods");
 is($tapdata->lines->[2]->is_test,   1,                             "[2] is_test via methods");
-is($tapdata->lines->[2]->is_ok,     1,                             "[2] is_ok via methods");
 is($tapdata->lines->[2]->is_ok,     1,                             "[2] is_ok via methods");
 is($tapdata->lines->[2]->raw,       "ok 1 - use Data::DPath;",     "[2] raw via methods");
 is($tapdata->lines->[2]->as_string, "ok 1 - use Data::DPath;",     "[2] as_string via methods");

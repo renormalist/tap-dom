@@ -32,6 +32,7 @@ is($tapdata->{lines}[2]{is_test},     1,          "[2] is_test");
 is($tapdata->{lines}[2]{is_ok},       1,          "[2] is_ok");
 is($tapdata->{lines}[2]{has_todo},    0,          "[2] has_todo");
 is($tapdata->{lines}[2]{is_actual_ok}, 0,      "[2] is_actual_ok");
+# diag Dumper ($tapdata->{lines}[2]{has_todo});
 
 is($tapdata->{lines}[3]{number},   2,      "[3] number");
 like($tapdata->{lines}[3]{description}, qr/test.*driven.*A/, "[3] description");
