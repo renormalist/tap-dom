@@ -57,6 +57,25 @@ our %EXPORT_TAGS = (constants => [ qw( $IS_PLAN
                                        $HAS_TODO
                                     ) ] );
 
+use Class::XSAccessor
+    chained     => 1,
+    accessors   => [qw( plan
+                        lines
+                        pragmas
+                        tests_planned
+                        tests_run
+                        version
+                        is_good_plan
+                        skip_all
+                        start_time
+                        end_time
+                        has_problems
+                        exit
+                        parse_errors
+                        summary
+                        tapdom_config
+                     )];
+
 sub new {
         # hash or hash ref
         my $class = shift;
