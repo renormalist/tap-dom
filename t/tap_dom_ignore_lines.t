@@ -41,7 +41,7 @@ is($tapdata->{summary}{has_problems}, 0,      "summary has_problems");
 
 # ==================== terse TAP-DOM ====================
 my $tapdata2 = new TAP::DOM( tap => $tap, ignorelines => qr/^## / );
-#diag Dumper($tapdata2);
+# diag Dumper($tapdata2);
 is($tapdata2->{tests_run},     2,     "tests_run");
 is($tapdata2->{tests_planned},  2,     "tests_planned");
 is($tapdata2->{version},       13,     "version");

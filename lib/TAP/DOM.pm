@@ -116,6 +116,10 @@ sub new {
                                 $entry->{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
                         }
                 }
+                # Idea:
+                # use constants
+                # map to constants
+                # then loop
                 foreach (qw( is_pragma is_comment is_bailout is_plan
                              is_version is_yaml is_unknown is_test is_bailout ))
                 {

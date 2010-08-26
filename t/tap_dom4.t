@@ -22,7 +22,7 @@ my $tapdata = new TAP::DOM( tap    => $tap,
                             ignore => [qw(raw as_string explanation)],
                           );
 #my $tapdata = tapdata( tap => $tap );
-# print STDERR Dumper($tapdata);
+# diag Dumper $tapdata;
 
 is($tapdata->{tests_run},     8,     "tests_run");
 is($tapdata->{tests_planned},  6,     "tests_planned");
