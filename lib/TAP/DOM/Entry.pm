@@ -23,8 +23,9 @@ use Class::XSAccessor
 BEGIN {
     no strict 'refs';
 
+    # bitset aware 'is_/has_' accessors
     for my $method (qw( is_plan is_ok is_test is_comment is_unknown is_actual_ok is_version
-                        is_pragma is_unplanned is_bailout is_yaml has_skip has_todo ))
+                        is_pragma is_unplanned is_bailout is_yaml has_skip has_todo))
     {
             *{$method} = sub {
                     my ($self) = @_;

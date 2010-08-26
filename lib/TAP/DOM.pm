@@ -259,9 +259,9 @@ change, so your data tools can, well, rely on it.
 Constructor which immediately triggers parsing the TAP via TAP::Parser
 and returns a big data structure containing the extracted results.
 
-All parameters (except C<ignore> and C<ignorelines>, see section "HOW
-TO STRIP DETAILS") are passed through to TAP::Parser. Usually just one
-of those:
+All parameters are passed through to TAP::Parser, except C<ignore>,
+C<ignorelines> and C<usebitsets>, see sections "HOW TO STRIP DETAILS"
+and "USING BITSETS". Usually the options are just one of those:
 
   tap => $some_tap_string
 
@@ -505,11 +505,48 @@ a prefixed "## " just for dual-using the TAP also as an archive of the
 log. When evaluating the TAP later I leave those log lines out because
 they only blow up the memory for the TAP-DOM:
 
-   $tapdom = TAP::DOM->new (tap         => $tap,
-                            ignorelines => qr/^## /,
-                           );
+ $tapdom = TAP::DOM->new (tap         => $tap,
+                          ignorelines => qr/^## /,
+                         );
 
 See C<t/some_tap_ignore_lines.t> for an example.
+
+=head1 USING BITSETS
+
+=head2 Option "usebitsets"
+
+You can make the DOM even smaller by using the option C<usebitsets>:
+
+ $tapdom = TAP::DOM->new (tap => $tap, usebitsets => 1 );
+
+In this case all the 'has_*' and 'is_*' attributes are stored in a
+common bitset entry 'is_has' with their respective bits set.
+
+This reduces the size of a TAP::DOM remarkably and even the parse time
+(for large TAP-DOMs ~40% less ram and ~20% less time) and is meant as
+an optimization option for memory constrained problems.
+
+=head2 Access bitset attributes via methods
+
+You can get the actual values of 'is_*' and 'has_*' attributes
+regardless of their storage as hash entries or bitsets by using the
+respective methods on single entries:
+
+ if ($tapdom->{lines}[4]->is_test) {...}
+ if ($tapdom->{lines}[4]->is_ok)   {...}
+ ...
+
+=head2 Access bitset attributes via bit comparisons
+
+You can use constants that represent the respective bits in
+expressions like this:
+
+ if ($tapdom->{lines}[4]{is_has} | $TAP::DOM::IS_TEST) {...}
+
+The constants can be imported into your namespace:
+
+ use TAP::DOM ':constants';
+ if ($tapdom->{lines}[4]{is_has} | $IS_TEST ) {...}
 
 =head1 AUTHOR
 
