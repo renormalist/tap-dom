@@ -57,7 +57,7 @@ is($tapdata->{lines}[5]{is_actual_ok}, 0,      "[5] is_actual_ok");
 # ============================== use bitsets ==============================
 
 $tapdata = TAP::DOM->new( tap => $tap, usebitsets => 1 );
-diag Dumper($tapdata);
+# diag Dumper($tapdata);
 
 is($tapdata->{tests_run},      4, "tests_run");
 is($tapdata->{tests_planned},  4, "tests_planned");
