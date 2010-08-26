@@ -10,6 +10,7 @@ author_requires 'Module::Install::AuthorTests';
 
 requires 'Test::Harness' => '3.0';
 requires 'Data::Dumper';
+requires 'parent';
 requires 'YAML::Syck';
 requires 'Sub::Exporter';
 requires 'Class::XSAccessor' => '1.05';

@@ -28,7 +28,7 @@ our $IS_YAML      = 1024;
 our $HAS_SKIP     = 2048;
 our $HAS_TODO     = 4096;
 
-use Exporter 'import';
+use parent 'Exporter';
 our @EXPORT_OK = qw( $IS_PLAN
                      $IS_OK
                      $IS_TEST
@@ -43,7 +43,6 @@ our @EXPORT_OK = qw( $IS_PLAN
                      $HAS_SKIP
                      $HAS_TODO
                   );
-
 our %EXPORT_TAGS = (constants => [ qw( $IS_PLAN
                                        $IS_OK
                                        $IS_TEST
