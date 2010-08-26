@@ -286,6 +286,7 @@ there might be errors in it, so for final reference, dump a DOM by
 yourself.
 
  bless( {
+  # general TAP stats:
   'version'       => 13,
   'plan'          => '1..6',
   'tests_planned' => 6
@@ -302,7 +303,13 @@ yourself.
   'exit'          => 0,
   'start_time'    => '1236463400.25151',
   'end_time'      => '1236463400.25468',
-  # for the meaning of this summary see also TAP::Parser::Aggregator.
+  # the used TAP::DOM specific options to TAP::DOM->new():
+  'tapdom_config' => {
+                      'ignorelines' => qr/(?-xism:^## )/,
+                      'usebitsets' => undef,
+                      'ignore' => {}
+                     },
+  # summary according to TAP::Parser::Aggregator:
   'summary' => {
                  'status'          => 'FAIL',
                  'total'           => 8,
@@ -327,6 +334,7 @@ yourself.
                                              ], 'Benchmark' ),
                  'elapsed_timestr' => ' 0 wallclock secs ( 0.00 usr +  0.00 sys =  0.00 CPU)',
                },
+  # all recognized TAP lines:
   'lines' => [
               {
                'is_actual_ok' => 0,
