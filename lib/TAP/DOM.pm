@@ -169,6 +169,12 @@ sub new {
                        has_errors      => $aggregate->has_errors ? 1 : 0,
                       );
 
+        my %tapdom_config = (
+                             ignore      => \%IGNORE,
+                             ignorelines => $IGNORELINES,
+                             usebitsets  => $USEBITSETS,
+                            );
+
         my $tapdata = {
                        plan          => $plan,
                        lines         => \@lines,
@@ -184,6 +190,7 @@ sub new {
                        exit          => $parser->exit,
                        parse_errors  => [ $parser->parse_errors ],
                        summary       => \%summary,
+                       tapdom_config => \%tapdom_config,
                       };
         return bless $tapdata, $class;
 }
