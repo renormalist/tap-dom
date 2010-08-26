@@ -16,7 +16,7 @@ my $tap;
         close TAP;
 }
 
-my $tapdata = new TAP::DOM( tap => $tap );
+my $tapdata = TAP::DOM->new( tap => $tap );
 #diag Dumper($tapdata);
 
 ok(1, "no more error 'Modification of non-creatable array value attempted, subscript -1'");

@@ -22,7 +22,7 @@ foreach my $usebitsets (0..1) {
         my $tapdata;
 
         my $count = 1;
-        my $t = timeit ($count, sub { $tapdata = new TAP::DOM( tap => $tap, usebitsets => $usebitsets ) });
+        my $t = timeit ($count, sub { $tapdata = TAP::DOM->new( tap => $tap, usebitsets => $usebitsets ) });
         my $n = $t->[5];
         my $throughput = $n / $t->[0];
 

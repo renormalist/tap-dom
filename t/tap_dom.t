@@ -16,7 +16,7 @@ my $tap;
         close TAP;
 }
 
-my $tapdata = new TAP::DOM( tap => $tap );
+my $tapdata = TAP::DOM->new( tap => $tap );
 #my $tapdata = tapdata( tap => $tap );
 # print STDERR Dumper($tapdata);
 

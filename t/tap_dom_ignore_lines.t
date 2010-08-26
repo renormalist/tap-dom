@@ -17,7 +17,7 @@ my $tap;
 }
 
 # ==================== complete TAP-DOM ====================
-my $tapdata = new TAP::DOM( tap => $tap); # needs Test::Harness 3.22: , version => 13 );
+my $tapdata = TAP::DOM->new( tap => $tap); # needs Test::Harness 3.22: , version => 13 );
 #diag Dumper($tapdata);
 is($tapdata->{tests_run},     2,     "tests_run");
 is($tapdata->{tests_planned},  2,     "tests_planned");
@@ -40,7 +40,7 @@ is($tapdata->{summary}{all_passed},   1,      "summary all_passed");
 is($tapdata->{summary}{has_problems}, 0,      "summary has_problems");
 
 # ==================== terse TAP-DOM ====================
-my $tapdata2 = new TAP::DOM( tap => $tap, ignorelines => qr/^## / );
+my $tapdata2 = TAP::DOM->new( tap => $tap, ignorelines => qr/^## / );
 # diag Dumper($tapdata2);
 is($tapdata2->{tests_run},     2,     "tests_run");
 is($tapdata2->{tests_planned},  2,     "tests_planned");

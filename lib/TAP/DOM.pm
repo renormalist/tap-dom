@@ -213,7 +213,7 @@ TAP::DOM - TAP as document data structure.
 =head1 SYNOPSIS
 
  use TAP::DOM;
- my $tapdata = new TAP::DOM( tap => $tap ); # same options as TAP::Parser
+ my $tapdata = TAP::DOM->new( tap => $tap ); # same options as TAP::Parser
  print Dumper($tapdata);
 
 

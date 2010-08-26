@@ -18,7 +18,7 @@ my $tap;
 
 # =========== strip some details ============================================
 
-my $tapdata = new TAP::DOM( tap    => $tap,
+my $tapdata = TAP::DOM->new( tap    => $tap,
                             ignore => [qw(raw as_string explanation)],
                           );
 #my $tapdata = tapdata( tap => $tap );
@@ -54,7 +54,7 @@ is($tapdata->{summary}{has_problems}, 1,      "summary has_problems");
 
 # =========== normal ======================================================
 
-$tapdata = new TAP::DOM( tap => $tap );
+$tapdata = TAP::DOM->new( tap => $tap );
 #my $tapdata = tapdata( tap => $tap );
 # print STDERR Dumper($tapdata);
 
