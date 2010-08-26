@@ -106,6 +106,7 @@ sub new {
                 next if $IGNORELINES && $result->raw =~ m/$IGNORELINES/;
 
                 my $entry = TAP::DOM::Entry->new;
+                $entry->{is_has} = 0 if $USEBITSETS;
 
                 # test info
                 foreach (qw(raw as_string )) {
@@ -118,7 +119,7 @@ sub new {
                         }
                         foreach (qw(is_ok is_unplanned )) {
                                 if ($USEBITSETS) {
-                                        $entry->{is_has} |= ${uc $_} unless $IGNORE{$_};
+                                        $entry->{is_has} |= $result->$_ ? ${uc $_} : 0 unless $IGNORE{$_};
                                 } else {
                                         $entry->{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
                                 }
@@ -131,7 +132,7 @@ sub new {
                 # meta info
                 foreach ((qw(has_skip has_todo))) {
                         if ($USEBITSETS) {
-                                $entry->{is_has} |= ${uc $_} unless $IGNORE{$_};
+                                $entry->{is_has} |= $result->$_ ? ${uc $_} : 0 unless $IGNORE{$_};
                         } else {
                                 $entry->{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
                         }
@@ -144,13 +145,13 @@ sub new {
                              is_version is_yaml is_unknown is_test is_bailout ))
                 {
                         if ($USEBITSETS) {
-                                $entry->{is_has} |= ${uc $_} unless $IGNORE{$_};
+                                $entry->{is_has} |= $result->$_ ? ${uc $_} : 0 unless $IGNORE{$_};
                         } else {
                                 $entry->{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
                         }
                 }
                 if (! $IGNORE{is_actual_ok}) {
-                        my $is_actual_ok = $result->has_todo && $result->is_actual_ok ? 1 : 0;
+                        my $is_actual_ok = ($result->has_todo && $result->is_actual_ok) ? 1 : 0;
                         if ($USEBITSETS) {
                                 $entry->{is_has} |= $is_actual_ok ? $IS_ACTUAL_OK : 0;
                         } else {
@@ -529,9 +530,9 @@ You can make the DOM even smaller by using the option C<usebitsets>:
 In this case all the 'has_*' and 'is_*' attributes are stored in a
 common bitset entry 'is_has' with their respective bits set.
 
-This reduces the size of a TAP::DOM remarkably and even the parse time
-(for large TAP-DOMs ~40% less ram and ~20% less time) and is meant as
-an optimization option for memory constrained problems.
+This reduces the memory footprint of a TAP::DOM remarkably (for large
+TAP-DOMs ~40%) and is meant as an optimization option for memory
+constrained problems.
 
 =head2 Access bitset attributes via methods
 

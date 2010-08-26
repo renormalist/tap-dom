@@ -69,32 +69,37 @@ is($tapdata->tapdom_config->usebitsets, 1, "tapdom_config usebitsets via method"
 
 like($tapdata->{lines}[2]{description}, qr/affe/,      "[2] description");
 is($tapdata->{lines}[2]{number},        1,             "[2] number");
-ok($tapdata->{lines}[2]{is_has}  | $TAP::DOM::IS_TEST, "[2] is_test (check bit using full namespace constant)");
-ok($tapdata->{lines}[2]{is_has}  | $IS_TEST,           "[2] is_test (check bit using exported constant)");
+ok($tapdata->{lines}[2]{is_has} & $TAP::DOM::IS_TEST,  "[2] is_test (check bit using full namespace constant)");
+ok($tapdata->{lines}[2]{is_has} & $IS_TEST,            "[2] is_test (check bit using exported constant)");
 ok($tapdata->{lines}[2]->is_test,                      "[2] is_test (check bit using method)");
-ok($tapdata->{lines}[2]{is_has}  | $IS_OK,             "[2] is_ok");
-ok(!$tapdata->{lines}[2]{is_has} | $HAS_TODO,          "[2] has_todo");
-ok(!$tapdata->{lines}[2]{is_has} | $IS_ACTUAL_OK,      "[2] is_actual_ok");
+ok($tapdata->{lines}[2]{is_has} & $IS_OK,              "[2] is_ok");
+ok(!($tapdata->{lines}[2]{is_has} & $HAS_TODO),           "[2] has_todo");
+ok(!($tapdata->{lines}[2]{is_has} & $IS_ACTUAL_OK),       "[2] is_actual_ok");
+# diag Dumper {
+#     is_has            => $tapdata->{lines}[2]{is_has},
+#     HAS_TODO          => $HAS_TODO,
+#     "is_has&HAS_TODO" => ($tapdata->{lines}[2]{is_has} & $HAS_TODO),
+# };
 
 like($tapdata->{lines}[3]{description}, qr/test.*driven.*A/, "[3] description");
 is($tapdata->{lines}[3]{number},        2,                   "[3] number");
-ok($tapdata->{lines}[3]{is_has} | $IS_TEST,                  "[3] is_test");
-ok($tapdata->{lines}[3]{is_has} | $IS_OK,                    "[3] is_ok");
-ok($tapdata->{lines}[3]{is_has} | $HAS_TODO,                 "[3] has_todo");
-ok($tapdata->{lines}[3]{is_has} | $IS_ACTUAL_OK,             "[3] is_actual_ok");
+ok($tapdata->{lines}[3]{is_has} & $IS_TEST,                  "[3] is_test");
+ok($tapdata->{lines}[3]{is_has} & $IS_OK,                    "[3] is_ok");
+ok($tapdata->{lines}[3]{is_has} & $HAS_TODO,                 "[3] has_todo");
+ok($tapdata->{lines}[3]{is_has} & $IS_ACTUAL_OK,             "[3] is_actual_ok");
 
 like($tapdata->{lines}[4]{description}, qr/test.*driven.*B/, "[4] description");
 is($tapdata->{lines}[4]{number},        3,                   "[4] number");
-ok($tapdata->{lines}[4]{is_has}  | $IS_TEST,                 "[4] is_test");
-ok($tapdata->{lines}[4]{is_has}  | $IS_OK,                   "[4] is_ok");
-ok($tapdata->{lines}[4]{is_has}  | $HAS_TODO,                "[4] has_todo");
-ok(!$tapdata->{lines}[4]{is_has} | $IS_ACTUAL_OK,            "[4] is_actual_ok");
+ok($tapdata->{lines}[4]{is_has}  & $IS_TEST,                 "[4] is_test");
+ok($tapdata->{lines}[4]{is_has}  & $IS_OK,                   "[4] is_ok");
+ok($tapdata->{lines}[4]{is_has}  & $HAS_TODO,                "[4] has_todo");
+ok(!($tapdata->{lines}[4]{is_has} & $IS_ACTUAL_OK),          "[4] is_actual_ok");
 
 like($tapdata->{lines}[5]{description}, qr/zomtec/,          "[5] description");
 is($tapdata->{lines}[5]{number},       4,                    "[5] number");
-ok($tapdata->{lines}[5]{is_has}  | $IS_TEST,                 "[5] is_test");
-ok($tapdata->{lines}[5]{is_has}  | $IS_OK,                   "[5] is_ok");
-ok(!$tapdata->{lines}[5]{is_has} | $HAS_TODO,                "[5] has_todo");
-ok(!$tapdata->{lines}[5]{is_has} | $IS_ACTUAL_OK,            "[5] is_actual_ok");
+ok($tapdata->{lines}[5]{is_has}  & $IS_TEST,                 "[5] is_test");
+ok($tapdata->{lines}[5]{is_has}  & $IS_OK,                   "[5] is_ok");
+ok(!($tapdata->{lines}[5]{is_has} & $HAS_TODO),              "[5] has_todo");
+ok(!($tapdata->{lines}[5]{is_has} & $IS_ACTUAL_OK),          "[5] is_actual_ok");
 
 done_testing();
