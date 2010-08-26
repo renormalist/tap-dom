@@ -57,12 +57,15 @@ is($tapdata->{lines}[5]{is_actual_ok}, 0,      "[5] is_actual_ok");
 # ============================== use bitsets ==============================
 
 $tapdata = TAP::DOM->new( tap => $tap, usebitsets => 1 );
-# diag Dumper($tapdata);
+diag Dumper($tapdata);
 
 is($tapdata->{tests_run},      4, "tests_run");
 is($tapdata->{tests_planned},  4, "tests_planned");
 is($tapdata->{version},       13, "version");
 is($tapdata->{plan},      "1..4", "plan");
+
+is($tapdata->{tapdom_config}{usebitsets}, 1, "tapdom_config usebitsets");
+is($tapdata->tapdom_config->usebitsets, 1, "tapdom_config usebitsets via method");
 
 like($tapdata->{lines}[2]{description}, qr/affe/,      "[2] description");
 is($tapdata->{lines}[2]{number},        1,             "[2] number");
