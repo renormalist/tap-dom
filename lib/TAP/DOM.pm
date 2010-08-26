@@ -4,12 +4,58 @@ use 5.006;
 use strict;
 use warnings;
 
+use TAP::DOM::Entry;
 use TAP::Parser;
 use TAP::Parser::Aggregator;
 use YAML::Syck;
 use Data::Dumper;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
+
+our $IS_PLAN      = 1;
+our $IS_OK        = 2;
+our $IS_TEST      = 4;
+our $IS_COMMENT   = 8;
+our $IS_UNKNOWN   = 16;
+our $IS_ACTUAL_OK = 32;
+our $IS_VERSION   = 64;
+our $IS_PRAGMA    = 128;
+our $IS_UNPLANNED = 256;
+our $IS_BAILOUT   = 512;
+our $IS_YAML      = 1024;
+our $HAS_SKIP     = 2048;
+our $HAS_TODO     = 4096;
+
+use Exporter 'import';
+our @EXPORT_OK = qw( $IS_PLAN
+                     $IS_OK
+                     $IS_TEST
+                     $IS_COMMENT
+                     $IS_UNKNOWN
+                     $IS_ACTUAL_OK
+                     $IS_VERSION
+                     $IS_PRAGMA
+                     $IS_UNPLANNED
+                     $IS_BAILOUT
+                     $IS_YAML
+                     $HAS_SKIP
+                     $HAS_TODO
+                  );
+
+our %EXPORT_TAGS = (constants => [ qw( $IS_PLAN
+                                       $IS_OK
+                                       $IS_TEST
+                                       $IS_COMMENT
+                                       $IS_UNKNOWN
+                                       $IS_ACTUAL_OK
+                                       $IS_VERSION
+                                       $IS_PRAGMA
+                                       $IS_UNPLANNED
+                                       $IS_BAILOUT
+                                       $IS_YAML
+                                       $HAS_SKIP
+                                       $HAS_TODO
+                                    ) ] );
 
 sub new {
         # hash or hash ref
@@ -24,8 +70,10 @@ sub new {
 
         my %IGNORE      = map { $_ => 1 } @{$args{ignore}};
         my $IGNORELINES = $args{ignorelines};
+        my $USEBITSETS  = $args{usebitsets};
         delete $args{ignore};
         delete $args{ignorelines};
+        delete $args{usebitsets};
 
         my $parser = new TAP::Parser( { %args } );
 
@@ -37,19 +85,23 @@ sub new {
 
                 next if $IGNORELINES && $result->raw =~ m/$IGNORELINES/;
 
-                my %entry = ();
+                my $entry = TAP::DOM::Entry->new;
 
                 # test info
                 foreach (qw(raw as_string )) {
-                        $entry{$_} = $result->$_ unless $IGNORE{$_};
+                        $entry->{$_} = $result->$_ unless $IGNORE{$_};
                 }
 
                 if ($result->is_test) {
                         foreach (qw(type directive explanation number description )) {
-                                $entry{$_} = $result->$_ unless $IGNORE{$_};
+                                $entry->{$_} = $result->$_ unless $IGNORE{$_};
                         }
                         foreach (qw(is_ok is_unplanned )) {
-                                $entry{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
+                                if ($USEBITSETS) {
+                                        $entry->{is_has} |= ${uc $_} unless $IGNORE{$_};
+                                } else {
+                                        $entry->{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
+                                }
                         }
                 }
 
@@ -58,25 +110,40 @@ sub new {
 
                 # meta info
                 foreach ((qw(has_skip has_todo))) {
-                        $entry{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
+                        if ($USEBITSETS) {
+                                $entry->{is_has} |= ${uc $_} unless $IGNORE{$_};
+                        } else {
+                                $entry->{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
+                        }
                 }
                 foreach (qw( is_pragma is_comment is_bailout is_plan
                              is_version is_yaml is_unknown is_test is_bailout ))
                 {
-                        $entry{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
+                        if ($USEBITSETS) {
+                                $entry->{is_has} |= ${uc $_} unless $IGNORE{$_};
+                        } else {
+                                $entry->{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
+                        }
                 }
-                $entry{is_actual_ok} = $result->has_todo && $result->is_actual_ok ? 1 : 0 unless $IGNORE{is_actual_ok};
-                $entry{data}         = $result->data if $result->is_yaml && !$IGNORE{data};
+                if (! $IGNORE{is_actual_ok}) {
+                        my $is_actual_ok = $result->has_todo && $result->is_actual_ok ? 1 : 0;
+                        if ($USEBITSETS) {
+                                $entry->{is_has} |= $is_actual_ok ? $IS_ACTUAL_OK : 0;
+                        } else {
+                                $entry->{is_actual_ok} = $is_actual_ok;
+                        }
+                }
+                $entry->{data}         = $result->data if $result->is_yaml && !$IGNORE{data};
 
 
                 # yaml and comments are taken as children of the line before
                 if ($result->is_yaml or $result->is_comment and @lines)
                 {
-                        push @{ $lines[-1]->{_children} }, \%entry;
+                        push @{ $lines[-1]->{_children} }, $entry;
                 }
                 else
                 {
-                        push @lines, \%entry;
+                        push @lines, $entry;
                 }
         }
         @pragmas = $parser->pragmas;
