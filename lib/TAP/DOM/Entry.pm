@@ -29,7 +29,7 @@ BEGIN {
     {
             *{$method} = sub {
                     my ($self) = @_;
-                    defined $self->{is_has} ? $self->{is_has} | ${"TAP::DOM::".uc($method)} : $self->{$method}
+                    defined $self->{is_has} ? $self->{is_has} & ${"TAP::DOM::".uc($method)} : $self->{$method}
             }
     }
 }
