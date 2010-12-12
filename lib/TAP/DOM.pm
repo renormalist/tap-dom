@@ -151,6 +151,17 @@ sub new {
                         }
                 }
                 if (! $IGNORE{is_actual_ok}) {
+                        # XXX:
+                        # I think it's confusing when the value of
+                        # "is_actual_ok" only has a meaning when
+                        # "has_todo" is true.
+                        # This makes it difficult to evaluate later.
+                        # But it's aligned with TAP::Parser
+                        # which also sets this only on "has_todo".
+                        #
+                        # Maybe the problem is a general philosophical one
+                        # in TAP::DOM to always have each hashkey existing.
+                        # Hmmm...
                         my $is_actual_ok = ($result->has_todo && $result->is_actual_ok) ? 1 : 0;
                         if ($USEBITSETS) {
                                 $entry->{is_has} |= $is_actual_ok ? $IS_ACTUAL_OK : 0;
