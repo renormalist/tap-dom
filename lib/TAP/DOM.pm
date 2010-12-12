@@ -301,20 +301,31 @@ __END__
 
 =head1 NAME
 
-TAP::DOM - TAP as document data structure.
+TAP::DOM - TAP as Document Object Model.
 
 =head1 SYNOPSIS
 
+ # Create a DOM from TAP
  use TAP::DOM;
- my $tapdata = TAP::DOM->new( tap => $tap ); # same options as TAP::Parser
- print Dumper($tapdata);
-
+ my $tapdom = TAP::DOM->new( tap => $tap ); # same options as TAP::Parser
+ print Dumper($tapdom);
+ 
+ # Recreate TAP from DOM
+ my $tap2 = $tapdom->to_tap;
 
 =head1 DESCRIPTION
 
 The purpose of this module is
-A) to define a B<reliable> data structure and
-B) to help create this structure from TAP.
+
+=over 4
+
+=item A) to define a B<reliable> data structure (a DOM)
+
+=item B) create a DOM from TAP
+
+=item C) recreate TAP from a DOM
+
+=back
 
 That is useful when you want to analyze the TAP in detail with "data
 exploration tools", like L<Data::DPath|Data::DPath>.
@@ -340,6 +351,10 @@ or
   source => $test_file
 
 But there are more, see L<TAP::Parser|TAP::Parser>.
+
+=head2 to_tap
+
+Called on a TAP::DOM object it returns a string that is TAP.
 
 =head1 STRUCTURE
 
