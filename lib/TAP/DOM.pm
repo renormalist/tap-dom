@@ -233,46 +233,62 @@ sub new {
         return bless $tapdata, $class;
 }
 
-sub to_tap 
+sub entry_to_tapline
+{
+        my ($self, $entry) = @_;
+
+        my %IGNORE = %{$self->{tapdom_config}{ignore}};
+
+        my $tapline = "";
+
+        # ok/notok test lines
+        if ($entry->{is_test})
+        {
+                $tapline = join(" ",
+                                # the original "NOT" is more difficult to reconstruct than it should...
+                                ($entry->{has_todo}
+                                 ? $entry->{is_actual_ok} ? () : "not"
+                                 : $entry->{is_ok}        ? () : "not"),
+                                "ok",
+                                ($entry->{number} || ()),
+                                ($entry->{description} || ()),
+                                ($entry->has_skip   ? "# SKIP ".($entry->{explanation} || "")
+                                 : $entry->has_todo ? "# TODO ".($entry->{explanation} || "")
+                                 : ()),
+                               );
+        }
+        # pragmas and meta lines, but no version nor plan
+        elsif ($entry->{is_pragma}  ||
+               $entry->{is_comment} ||
+               $entry->{is_bailout} ||
+               $entry->{is_yaml})
+        {
+                $tapline = $IGNORE{raw} ? $entry->{as_string} : $entry->{raw}; # if "raw" was 'ignored' try "as_string"
+        }
+        return $tapline;
+}
+
+sub lines_to_tap
+{
+        my ($self, $lines) = @_;
+
+        my @taplines;
+        foreach my $entry (@$lines)
+        {
+                my $tapline = $self->entry_to_tapline($entry);
+                push @taplines, $tapline if $tapline;
+                push @taplines, $self->lines_to_tap($entry->{_children}) if $entry->{_children};
+        }
+        return @taplines;
+}
+
+sub to_tap
 {
     my ($self) = @_;
-    
-    my $tapdom_config = $self->{tapdom_config};
-    my %IGNORE = %{$tapdom_config->{ignore}};
-    
-    my @taplines;
-    
-    my $found_plan = 0;
-    foreach my $l (@{$self->{lines}}) {
-        my $tapline = "";
-        
-        if ($l->{is_test}) 
-        {
-            $tapline = join(" ",
-                            (!$l->{is_ok} ? "not" : ()),
-                            "ok",
-                            ($l->{number} || ""),
-                            $l->{description},
-                            ($l->has_skip ? "# SKIP ".($l->{explanation} || "") 
-                                          : $l->has_todo ? "# TODO ".($l->{explanation} || "")
-                                                         : ""),
-                );
-        }
-        # pragmas and meta lines
-        elsif ($l->{is_pragma}  ||
-               $l->{is_comment} ||
-               $l->{is_bailout} ||
-               $l->{is_version} ||
-               $l->{is_plan}    ||
-               $l->{is_yaml})
-        {
-            $tapline = $IGNORE{raw} ? $l->{as_string} : $l->{raw}; # if "raw" was 'ignored' try "as_string"
-            $found_plan = 1 if $l->is_plan; # if plan never found raw, we reproduce it from meta later
-        }
-        push @taplines, $tapline if $tapline;
-    }
-    unshift @taplines, $self->{plan} unless $found_plan;
 
+    my @taplines = $self->lines_to_tap($self->{lines});
+    unshift @taplines, $self->{plan};
+    unshift @taplines, "TAP version ".$self->{version};
     my $tap = join("\n", @taplines)."\n";
     return $tap;
 }
