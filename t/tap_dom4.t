@@ -70,7 +70,7 @@ is($tapdata->{lines}[2]{is_ok},   1,     "[2] is_ok");
 is($tapdata->{lines}[2]{raw},       "ok 1 - use Data::DPath;",     "[2] raw");
 is($tapdata->{lines}[2]{as_string}, "ok 1 - use Data::DPath;",     "[2] as_string");
 
-is($tapdata->{lines}[6]{explanation}, "spec only", "[6] explanation");
+is($tapdata->{lines}[6]{explanation}, "spec only 1", "[6] explanation");
 
 is($tapdata->{lines}[2]{_children}[0]{data}[0]{name}, "Hash one",     "[2]...{data}");
 
