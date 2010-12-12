@@ -142,7 +142,7 @@ sub new {
                 # map to constants
                 # then loop
                 foreach (qw( is_pragma is_comment is_bailout is_plan
-                             is_version is_yaml is_unknown is_test is_bailout ))
+                             is_version is_yaml is_unknown is_test))
                 {
                         if ($USEBITSETS) {
                                 $entry->{is_has} |= $result->$_ ? ${uc $_} : 0 unless $IGNORE{$_};
