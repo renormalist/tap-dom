@@ -222,6 +222,49 @@ sub new {
         return bless $tapdata, $class;
 }
 
+sub to_tap 
+{
+    my ($self) = @_;
+    
+    my $tapdom_config = $self->{tapdom_config};
+    my %IGNORE = %{$tapdom_config->{ignore}};
+    
+    my @taplines;
+    
+    my $found_plan = 0;
+    foreach my $l (@{$self->{lines}}) {
+        my $tapline = "";
+        
+        if ($l->{is_test}) 
+        {
+            $tapline = join(" ",
+                            (!$l->{is_ok} ? "not" : ()),
+                            "ok",
+                            ($l->{number} || ""),
+                            $l->{description},
+                            ($l->has_skip ? "# SKIP ".($l->{explanation} || "") 
+                                          : $l->has_todo ? "# TODO ".($l->{explanation} || "")
+                                                         : ""),
+                );
+        }
+        # pragmas and meta lines
+        elsif ($l->{is_pragma}  ||
+               $l->{is_comment} ||
+               $l->{is_bailout} ||
+               $l->{is_version} ||
+               $l->{is_plan}    ||
+               $l->{is_yaml})
+        {
+            $tapline = $IGNORE{raw} ? $l->{as_string} : $l->{raw}; # if "raw" was 'ignored' try "as_string"
+            $found_plan = 1 if $l->is_plan; # if plan never found raw, we reproduce it from meta later
+        }
+        push @taplines, $tapline if $tapline;
+    }
+    unshift @taplines, $self->{plan} unless $found_plan;
+
+    my $tap = join("\n", @taplines)."\n";
+    return $tap;
+}
 
 1; # End of TAP::DOM
 
