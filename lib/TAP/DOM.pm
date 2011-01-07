@@ -4,12 +4,78 @@ use 5.006;
 use strict;
 use warnings;
 
+use TAP::DOM::Entry;
+use TAP::DOM::Summary;
+use TAP::DOM::Config;
 use TAP::Parser;
 use TAP::Parser::Aggregator;
 use YAML::Syck;
 use Data::Dumper;
 
-our $VERSION = '0.07';
+our $VERSION = '0.10';
+
+our $IS_PLAN      = 1;
+our $IS_OK        = 2;
+our $IS_TEST      = 4;
+our $IS_COMMENT   = 8;
+our $IS_UNKNOWN   = 16;
+our $IS_ACTUAL_OK = 32;
+our $IS_VERSION   = 64;
+our $IS_PRAGMA    = 128;
+our $IS_UNPLANNED = 256;
+our $IS_BAILOUT   = 512;
+our $IS_YAML      = 1024;
+our $HAS_SKIP     = 2048;
+our $HAS_TODO     = 4096;
+
+use parent 'Exporter';
+our @EXPORT_OK = qw( $IS_PLAN
+                     $IS_OK
+                     $IS_TEST
+                     $IS_COMMENT
+                     $IS_UNKNOWN
+                     $IS_ACTUAL_OK
+                     $IS_VERSION
+                     $IS_PRAGMA
+                     $IS_UNPLANNED
+                     $IS_BAILOUT
+                     $IS_YAML
+                     $HAS_SKIP
+                     $HAS_TODO
+                  );
+our %EXPORT_TAGS = (constants => [ qw( $IS_PLAN
+                                       $IS_OK
+                                       $IS_TEST
+                                       $IS_COMMENT
+                                       $IS_UNKNOWN
+                                       $IS_ACTUAL_OK
+                                       $IS_VERSION
+                                       $IS_PRAGMA
+                                       $IS_UNPLANNED
+                                       $IS_BAILOUT
+                                       $IS_YAML
+                                       $HAS_SKIP
+                                       $HAS_TODO
+                                    ) ] );
+
+use Class::XSAccessor
+    chained     => 1,
+    accessors   => [qw( plan
+                        lines
+                        pragmas
+                        tests_planned
+                        tests_run
+                        version
+                        is_good_plan
+                        skip_all
+                        start_time
+                        end_time
+                        has_problems
+                        exit
+                        parse_errors
+                        summary
+                        tapdom_config
+                     )];
 
 sub new {
         # hash or hash ref
@@ -24,8 +90,10 @@ sub new {
 
         my %IGNORE      = map { $_ => 1 } @{$args{ignore}};
         my $IGNORELINES = $args{ignorelines};
+        my $USEBITSETS  = $args{usebitsets};
         delete $args{ignore};
         delete $args{ignorelines};
+        delete $args{usebitsets};
 
         my $parser = new TAP::Parser( { %args } );
 
@@ -37,19 +105,24 @@ sub new {
 
                 next if $IGNORELINES && $result->raw =~ m/$IGNORELINES/;
 
-                my %entry = ();
+                my $entry = TAP::DOM::Entry->new;
+                $entry->{is_has} = 0 if $USEBITSETS;
 
                 # test info
                 foreach (qw(raw as_string )) {
-                        $entry{$_} = $result->$_ unless $IGNORE{$_};
+                        $entry->{$_} = $result->$_ unless $IGNORE{$_};
                 }
 
                 if ($result->is_test) {
                         foreach (qw(type directive explanation number description )) {
-                                $entry{$_} = $result->$_ unless $IGNORE{$_};
+                                $entry->{$_} = $result->$_ unless $IGNORE{$_};
                         }
                         foreach (qw(is_ok is_unplanned )) {
-                                $entry{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
+                                if ($USEBITSETS) {
+                                        $entry->{is_has} |= $result->$_ ? ${uc $_} : 0 unless $IGNORE{$_};
+                                } else {
+                                        $entry->{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
+                                }
                         }
                 }
 
@@ -58,25 +131,55 @@ sub new {
 
                 # meta info
                 foreach ((qw(has_skip has_todo))) {
-                        $entry{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
+                        if ($USEBITSETS) {
+                                $entry->{is_has} |= $result->$_ ? ${uc $_} : 0 unless $IGNORE{$_};
+                        } else {
+                                $entry->{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
+                        }
                 }
+                # Idea:
+                # use constants
+                # map to constants
+                # then loop
                 foreach (qw( is_pragma is_comment is_bailout is_plan
-                             is_version is_yaml is_unknown is_test is_bailout ))
+                             is_version is_yaml is_unknown is_test))
                 {
-                        $entry{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
+                        if ($USEBITSETS) {
+                                $entry->{is_has} |= $result->$_ ? ${uc $_} : 0 unless $IGNORE{$_};
+                        } else {
+                                $entry->{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
+                        }
                 }
-                $entry{is_actual_ok} = $result->has_todo && $result->is_actual_ok ? 1 : 0 unless $IGNORE{is_actual_ok};
-                $entry{data}         = $result->data if $result->is_yaml && !$IGNORE{data};
+                if (! $IGNORE{is_actual_ok}) {
+                        # XXX:
+                        # I think it's confusing when the value of
+                        # "is_actual_ok" only has a meaning when
+                        # "has_todo" is true.
+                        # This makes it difficult to evaluate later.
+                        # But it's aligned with TAP::Parser
+                        # which also sets this only on "has_todo".
+                        #
+                        # Maybe the problem is a general philosophical one
+                        # in TAP::DOM to always have each hashkey existing.
+                        # Hmmm...
+                        my $is_actual_ok = ($result->has_todo && $result->is_actual_ok) ? 1 : 0;
+                        if ($USEBITSETS) {
+                                $entry->{is_has} |= $is_actual_ok ? $IS_ACTUAL_OK : 0;
+                        } else {
+                                $entry->{is_actual_ok} = $is_actual_ok;
+                        }
+                }
+                $entry->{data}         = $result->data if $result->is_yaml && !$IGNORE{data};
 
 
                 # yaml and comments are taken as children of the line before
                 if ($result->is_yaml or $result->is_comment and @lines)
                 {
-                        push @{ $lines[-1]->{_children} }, \%entry;
+                        push @{ $lines[-1]->{_children} }, $entry;
                 }
                 else
                 {
-                        push @lines, \%entry;
+                        push @lines, $entry;
                 }
         }
         @pragmas = $parser->pragmas;
@@ -84,23 +187,31 @@ sub new {
         $aggregate->add( main => $parser );
         $aggregate->stop;
 
-        my %summary = (
-                       failed          => scalar $aggregate->failed,
-                       parse_errors    => scalar $aggregate->parse_errors,
-                       passed          => scalar $aggregate->passed,
-                       skipped         => scalar $aggregate->skipped,
-                       todo            => scalar $aggregate->todo,
-                       todo_passed     => scalar $aggregate->todo_passed,
-                       wait            => scalar $aggregate->wait,
-                       exit            => scalar $aggregate->exit,
-                       elapsed         => $aggregate->elapsed,
-                       elapsed_timestr => $aggregate->elapsed_timestr,
-                       all_passed      => $aggregate->all_passed ? 1 : 0,
-                       status          => $aggregate->get_status,
-                       total           => $aggregate->total,
-                       has_problems    => $aggregate->has_problems ? 1 : 0,
-                       has_errors      => $aggregate->has_errors ? 1 : 0,
-                      );
+        my $summary = TAP::DOM::Summary->new
+         (
+          failed          => scalar $aggregate->failed,
+          parse_errors    => scalar $aggregate->parse_errors,
+          passed          => scalar $aggregate->passed,
+          skipped         => scalar $aggregate->skipped,
+          todo            => scalar $aggregate->todo,
+          todo_passed     => scalar $aggregate->todo_passed,
+          wait            => scalar $aggregate->wait,
+          exit            => scalar $aggregate->exit,
+          elapsed         => $aggregate->elapsed,
+          elapsed_timestr => $aggregate->elapsed_timestr,
+          all_passed      => $aggregate->all_passed ? 1 : 0,
+          status          => $aggregate->get_status,
+          total           => $aggregate->total,
+          has_problems    => $aggregate->has_problems ? 1 : 0,
+          has_errors      => $aggregate->has_errors ? 1 : 0,
+         );
+
+        my $tapdom_config = TAP::DOM::Config->new
+         (
+          ignore      => \%IGNORE,
+          ignorelines => $IGNORELINES,
+          usebitsets  => $USEBITSETS,
+         );
 
         my $tapdata = {
                        plan          => $plan,
@@ -116,11 +227,71 @@ sub new {
                        has_problems  => $parser->has_problems,
                        exit          => $parser->exit,
                        parse_errors  => [ $parser->parse_errors ],
-                       summary       => \%summary,
+                       summary       => $summary,
+                       tapdom_config => $tapdom_config,
                       };
         return bless $tapdata, $class;
 }
 
+sub entry_to_tapline
+{
+        my ($self, $entry) = @_;
+
+        my %IGNORE = %{$self->{tapdom_config}{ignore}};
+
+        my $tapline = "";
+
+        # ok/notok test lines
+        if ($entry->{is_test})
+        {
+                $tapline = join(" ",
+                                # the original "NOT" is more difficult to reconstruct than it should...
+                                ($entry->{has_todo}
+                                 ? $entry->{is_actual_ok} ? () : "not"
+                                 : $entry->{is_ok}        ? () : "not"),
+                                "ok",
+                                ($entry->{number} || ()),
+                                ($entry->{description} || ()),
+                                ($entry->has_skip   ? "# SKIP ".($entry->{explanation} || "")
+                                 : $entry->has_todo ? "# TODO ".($entry->{explanation} || "")
+                                 : ()),
+                               );
+        }
+        # pragmas and meta lines, but no version nor plan
+        elsif ($entry->{is_pragma}  ||
+               $entry->{is_comment} ||
+               $entry->{is_bailout} ||
+               $entry->{is_yaml})
+        {
+                $tapline = $IGNORE{raw} ? $entry->{as_string} : $entry->{raw}; # if "raw" was 'ignored' try "as_string"
+        }
+        return $tapline;
+}
+
+sub lines_to_tap
+{
+        my ($self, $lines) = @_;
+
+        my @taplines;
+        foreach my $entry (@$lines)
+        {
+                my $tapline = $self->entry_to_tapline($entry);
+                push @taplines, $tapline if $tapline;
+                push @taplines, $self->lines_to_tap($entry->{_children}) if $entry->{_children};
+        }
+        return @taplines;
+}
+
+sub to_tap
+{
+    my ($self) = @_;
+
+    my @taplines = $self->lines_to_tap($self->{lines});
+    unshift @taplines, $self->{plan};
+    unshift @taplines, "TAP version ".$self->{version};
+    my $tap = join("\n", @taplines)."\n";
+    return $tap;
+}
 
 1; # End of TAP::DOM
 
@@ -130,20 +301,31 @@ __END__
 
 =head1 NAME
 
-TAP::DOM - TAP as document data structure.
+TAP::DOM - TAP as Document Object Model.
 
 =head1 SYNOPSIS
 
+ # Create a DOM from TAP
  use TAP::DOM;
- my $tapdata = new TAP::DOM( tap => $tap ); # same options as TAP::Parser
- print Dumper($tapdata);
-
+ my $tapdom = TAP::DOM->new( tap => $tap ); # same options as TAP::Parser
+ print Dumper($tapdom);
+ 
+ # Recreate TAP from DOM
+ my $tap2 = $tapdom->to_tap;
 
 =head1 DESCRIPTION
 
 The purpose of this module is
-A) to define a B<reliable> data structure and
-B) to help create this structure from TAP.
+
+=over 4
+
+=item A) to define a B<reliable> data structure (a DOM)
+
+=item B) create a DOM from TAP
+
+=item C) recreate TAP from a DOM
+
+=back
 
 That is useful when you want to analyze the TAP in detail with "data
 exploration tools", like L<Data::DPath|Data::DPath>.
@@ -158,9 +340,9 @@ change, so your data tools can, well, rely on it.
 Constructor which immediately triggers parsing the TAP via TAP::Parser
 and returns a big data structure containing the extracted results.
 
-All parameters (except C<ignore> and C<ignorelines>, see section "HOW
-TO STRIP DETAILS") are passed through to TAP::Parser. Usually just one
-of those:
+All parameters are passed through to TAP::Parser, except C<ignore>,
+C<ignorelines> and C<usebitsets>, see sections "HOW TO STRIP DETAILS"
+and "USING BITSETS". Usually the options are just one of those:
 
   tap => $some_tap_string
 
@@ -169,6 +351,10 @@ or
   source => $test_file
 
 But there are more, see L<TAP::Parser|TAP::Parser>.
+
+=head2 to_tap
+
+Called on a TAP::DOM object it returns a string that is TAP.
 
 =head1 STRUCTURE
 
@@ -185,6 +371,7 @@ there might be errors in it, so for final reference, dump a DOM by
 yourself.
 
  bless( {
+  # general TAP stats:
   'version'       => 13,
   'plan'          => '1..6',
   'tests_planned' => 6
@@ -201,7 +388,13 @@ yourself.
   'exit'          => 0,
   'start_time'    => '1236463400.25151',
   'end_time'      => '1236463400.25468',
-  # for the meaning of this summary see also TAP::Parser::Aggregator.
+  # the used TAP::DOM specific options to TAP::DOM->new():
+  'tapdom_config' => {
+                      'ignorelines' => qr/(?-xism:^## )/,
+                      'usebitsets' => undef,
+                      'ignore' => {}
+                     },
+  # summary according to TAP::Parser::Aggregator:
   'summary' => {
                  'status'          => 'FAIL',
                  'total'           => 8,
@@ -226,6 +419,7 @@ yourself.
                                              ], 'Benchmark' ),
                  'elapsed_timestr' => ' 0 wallclock secs ( 0.00 usr +  0.00 sys =  0.00 CPU)',
                },
+  # all recognized TAP lines:
   'lines' => [
               {
                'is_actual_ok' => 0,
@@ -404,11 +598,84 @@ a prefixed "## " just for dual-using the TAP also as an archive of the
 log. When evaluating the TAP later I leave those log lines out because
 they only blow up the memory for the TAP-DOM:
 
-   $tapdom = TAP::DOM->new (tap         => $tap,
-                            ignorelines => qr/^## /,
-                           );
+ $tapdom = TAP::DOM->new (tap         => $tap,
+                          ignorelines => qr/^## /,
+                         );
 
 See C<t/some_tap_ignore_lines.t> for an example.
+
+=head1 USING BITSETS
+
+=head2 Option "usebitsets"
+
+You can make the DOM even smaller by using the option C<usebitsets>:
+
+ $tapdom = TAP::DOM->new (tap => $tap, usebitsets => 1 );
+
+In this case all the 'has_*' and 'is_*' attributes are stored in a
+common bitset entry 'is_has' with their respective bits set.
+
+This reduces the memory footprint of a TAP::DOM remarkably (for large
+TAP-DOMs ~40%) and is meant as an optimization option for memory
+constrained problems.
+
+=head2 Access bitset attributes via methods
+
+You can get the actual values of 'is_*' and 'has_*' attributes
+regardless of their storage as hash entries or bitsets by using the
+respective methods on single entries:
+
+ if ($tapdom->{lines}[4]->is_test) {...}
+ if ($tapdom->{lines}[4]->is_ok)   {...}
+ ...
+
+or with even less direct hash access
+
+ if ($tapdom->lines->[4]->is_test) {...}
+ if ($tapdom->lines->[4]->is_ok)   {...}
+ ...
+
+=head2 Access bitset attributes via bit comparisons
+
+You can also use constants that represent the respective bits in
+expressions like this:
+
+ if ($tapdom->{lines}[4]{is_has} | $TAP::DOM::IS_TEST) {...}
+
+And the constants can be imported into your namespace:
+
+ use TAP::DOM ':constants';
+ if ($tapdom->{lines}[4]{is_has} | $IS_TEST ) {...}
+
+=head1 ACCESSORS
+
+=head2 end_time
+
+=head2 exit
+
+=head2 has_problems
+
+=head2 is_good_plan
+
+=head2 parse_errors
+
+=head2 plan
+
+=head2 pragmas
+
+=head2 skip_all
+
+=head2 start_time
+
+=head2 summary
+
+=head2 tapdom_config
+
+=head2 tests_planned
+
+=head2 tests_run
+
+=head2 version
 
 =head1 AUTHOR
 

@@ -18,11 +18,11 @@ my $tap;
 
 # =========== strip some details ============================================
 
-my $tapdata = new TAP::DOM( tap    => $tap,
+my $tapdata = TAP::DOM->new( tap    => $tap,
                             ignore => [qw(raw as_string explanation)],
                           );
 #my $tapdata = tapdata( tap => $tap );
-# print STDERR Dumper($tapdata);
+# diag Dumper $tapdata;
 
 is($tapdata->{tests_run},     8,     "tests_run");
 is($tapdata->{tests_planned},  6,     "tests_planned");
@@ -54,7 +54,7 @@ is($tapdata->{summary}{has_problems}, 1,      "summary has_problems");
 
 # =========== normal ======================================================
 
-$tapdata = new TAP::DOM( tap => $tap );
+$tapdata = TAP::DOM->new( tap => $tap );
 #my $tapdata = tapdata( tap => $tap );
 # print STDERR Dumper($tapdata);
 
@@ -70,7 +70,7 @@ is($tapdata->{lines}[2]{is_ok},   1,     "[2] is_ok");
 is($tapdata->{lines}[2]{raw},       "ok 1 - use Data::DPath;",     "[2] raw");
 is($tapdata->{lines}[2]{as_string}, "ok 1 - use Data::DPath;",     "[2] as_string");
 
-is($tapdata->{lines}[6]{explanation}, "spec only", "[6] explanation");
+is($tapdata->{lines}[6]{explanation}, "spec only 1", "[6] explanation");
 
 is($tapdata->{lines}[2]{_children}[0]{data}[0]{name}, "Hash one",     "[2]...{data}");
 
