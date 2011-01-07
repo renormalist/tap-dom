@@ -8,6 +8,7 @@ use Test::More tests => 11;
 use TAP::DOM;
 use Data::Dumper;
 use Benchmark ':all', ':hireswallclock';
+use Devel::Size 'total_size';
 
 my $tap;
 {
@@ -23,6 +24,8 @@ my $count = 3;
 my $t = timeit ($count, sub { $tapdata = new TAP::DOM( tap => $tap ) });
 my $n = $t->[5];
 my $throughput = $n / $t->[0];
+
+diag "Data size: ".total_size ($tapdata);
 
 diag Dumper($t);
 is($tapdata->{tests_run},      41499,     "tests_run");
