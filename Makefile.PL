@@ -19,5 +19,6 @@ test_requires 'Test::More' => 0.88;
 auto_install;
 
 repository 'git://github.com/renormalist/tap-dom.git';
+bugtracker 'http://rt.cpan.org/NoAuth/ReportBug.html?Queue=TAP-DOM';
 
 WriteAll;
