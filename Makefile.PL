@@ -4,7 +4,6 @@ use inc::Module::Install;
 
 name     'TAP-DOM';
 all_from 'lib/TAP/DOM.pm';
-author   'Steffen Schwigon <schwigon@cpan.org>';
 
 author_requires 'Module::Install::AuthorTests';
 
