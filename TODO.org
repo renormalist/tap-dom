@@ -1,0 +1,6 @@
+* Ideas
+** bless lines elementsto TAP::DOM::LINE
+*** provide methods there: is_plan, is_actual_ok, etc, which are just accessors
+*** but also work when usebitsets is 1.
+*** this later allows in DPath:    "//lines/*[ $_->is_actual_ok ]"
+** 
