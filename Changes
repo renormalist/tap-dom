@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.11      2014-03-14
         - assume TAP version 13 if TAP::Parser supports this (v3.22+)
         - TAP-DOM "reverse": to_tap() produces TAP from a TAP::DOM
         - distro polishing (misc & rt#90178)
