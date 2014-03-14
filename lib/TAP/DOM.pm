@@ -233,7 +233,7 @@ sub new {
         return bless $tapdata, $class;
 }
 
-sub entry_to_tapline
+sub _entry_to_tapline
 {
         my ($self, $entry) = @_;
 
@@ -268,16 +268,16 @@ sub entry_to_tapline
         return $tapline;
 }
 
-sub lines_to_tap
+sub _lines_to_tap
 {
         my ($self, $lines) = @_;
 
         my @taplines;
         foreach my $entry (@$lines)
         {
-                my $tapline = $self->entry_to_tapline($entry);
+                my $tapline = $self->_entry_to_tapline($entry);
                 push @taplines, $tapline if $tapline;
-                push @taplines, $self->lines_to_tap($entry->{_children}) if $entry->{_children};
+                push @taplines, $self->_lines_to_tap($entry->{_children}) if $entry->{_children};
         }
         return @taplines;
 }
@@ -286,7 +286,7 @@ sub to_tap
 {
     my ($self) = @_;
 
-    my @taplines = $self->lines_to_tap($self->{lines});
+    my @taplines = $self->_lines_to_tap($self->{lines});
     unshift @taplines, $self->{plan};
     unshift @taplines, "TAP version ".$self->{version};
     my $tap = join("\n", @taplines)."\n";
