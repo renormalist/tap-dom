@@ -1,4 +1,5 @@
 package TAP::DOM::Entry;
+# ABSTRACT: TAP::DOM::Entry - Accessors for TAP::DOM line entries
 
 use 5.006;
 use strict;
@@ -49,12 +50,6 @@ BEGIN {
 1;
 
 __END__
-
-=pod
-
-=head1 NAME
-
-TAP::DOM::Entry - Accessors for TAP::DOM line entries
 
 =head1 DESCRIPTION
 

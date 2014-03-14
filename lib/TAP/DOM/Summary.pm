@@ -1,4 +1,5 @@
 package TAP::DOM::Summary;
+# ABSTRACT: TAP::DOM::Summary - Accessors for TAP::DOM summary part
 
 use 5.006;
 use strict;
@@ -27,13 +28,6 @@ use Class::XSAccessor
 1;
 
 __END__
-
-=pod
-
-=head1 NAME
-
-TAP::DOM::Summary - Accessors for TAP::DOM summary part
-
 
 =head1 DESCRIPTION
 

@@ -1,4 +1,5 @@
 package TAP::DOM::Config;
+# ABSTRACT: TAP::DOM::Config - Accessors for TAP::DOM specific parse config
 
 use 5.006;
 use strict;
@@ -15,12 +16,6 @@ use Class::XSAccessor
 1;
 
 __END__
-
-=pod
-
-=head1 NAME
-
-TAP::DOM::Config - Accessors for TAP::DOM specific parse config
 
 =head1 DESCRIPTION
 

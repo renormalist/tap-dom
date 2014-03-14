@@ -1,4 +1,5 @@
 package TAP::DOM;
+# ABSTRACT: TAP::DOM - TAP as Document Object Model.
 
 use 5.006;
 use strict;
@@ -11,8 +12,6 @@ use TAP::Parser;
 use TAP::Parser::Aggregator;
 use YAML::Syck;
 use Data::Dumper;
-
-our $VERSION = '0.10';
 
 our $IS_PLAN      = 1;
 our $IS_OK        = 2;
@@ -297,12 +296,6 @@ sub to_tap
 
 __END__
 
-=pod
-
-=head1 NAME
-
-TAP::DOM - TAP as Document Object Model.
-
 =head1 SYNOPSIS
 
  # Create a DOM from TAP
@@ -333,7 +326,7 @@ exploration tools", like L<Data::DPath|Data::DPath>.
 ``Reliable'' means that this structure is kind of an API that will not
 change, so your data tools can, well, rely on it.
 
-=head1 FUNCTIONS
+=head1 METHODS
 
 =head2 new
 
@@ -676,65 +669,5 @@ And the constants can be imported into your namespace:
 =head2 tests_run
 
 =head2 version
-
-=head1 AUTHOR
-
-Steffen Schwigon, C<< <schwigon at cpan.org> >>
-
-=head1 BUGS
-
-Currently I'm not yet sure whether the structure is already
-``reliable'' and ``stable'' as is stated in the B<DESCRIPTION>. I will
-probably call it version C<1.0> once I'm fine with it.
-
-Please report any bugs or feature requests to C<bug-tap-data at
-rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=TAP-DOM>.  I will be
-notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
-
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc TAP::DOM
-
-
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=TAP-DOM>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/TAP-DOM>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/TAP-DOM>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/TAP-DOM>
-
-=back
-
-
-=head1 REPOSITORY
-
-The public repository is hosted on github:
-
-  git clone git://github.com/renormalist/tap-dom.git
-
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2009 Steffen Schwigon, all rights reserved.
-
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
 
 =cut
