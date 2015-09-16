@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - generate "document_data" key/value entry in the TAP-DOM
+          from hot comments of the form: # Test-<key>: <value>
 
 0.11      2014-03-14
         - assume TAP version 13 if TAP::Parser supports this (v3.22+)
