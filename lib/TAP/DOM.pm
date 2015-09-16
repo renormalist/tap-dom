@@ -7,6 +7,7 @@ use warnings;
 
 use TAP::DOM::Entry;
 use TAP::DOM::Summary;
+use TAP::DOM::DocumentData;
 use TAP::DOM::Config;
 use TAP::Parser;
 use TAP::Parser::Aggregator;
@@ -26,6 +27,8 @@ our $IS_BAILOUT   = 512;
 our $IS_YAML      = 1024;
 our $HAS_SKIP     = 2048;
 our $HAS_TODO     = 4096;
+
+our $document_data_regex = qr/^#\s*Test-([^:]+)\s*:\s*(.*)$/;
 
 use parent 'Exporter';
 our @EXPORT_OK = qw( $IS_PLAN
@@ -74,6 +77,7 @@ use Class::XSAccessor
                         parse_errors
                         summary
                         tapdom_config
+                        document_data
                      )];
 
 sub new {
@@ -86,6 +90,7 @@ sub new {
         my $version;
         my @pragmas;
         my $bailout;
+        my %document_data;
 
         my %IGNORE      = map { $_ => 1 } @{$args{ignore}};
         my $IGNORELINES = $args{ignorelines};
@@ -170,6 +175,13 @@ sub new {
                 }
                 $entry->{data}         = $result->data if $result->is_yaml && !$IGNORE{data};
 
+                if ($result->is_comment and $result->as_string =~ $document_data_regex)
+                {
+                        my ($key, $value) = ($1, $2);
+                        $key =~ s/^\s+//; # strip leading  whitespace
+                        $key =~ s/\s+$//; # strip trailing whitespace
+                        $document_data{$key} = $value;
+                }
 
                 # yaml and comments are taken as children of the line before
                 if ($result->is_yaml or $result->is_comment and @lines)
@@ -212,6 +224,8 @@ sub new {
           usebitsets  => $USEBITSETS,
          );
 
+        my $document_data = TAP::DOM::DocumentData->new(%document_data);
+
         my $tapdata = {
                        plan          => $plan,
                        lines         => \@lines,
@@ -228,6 +242,7 @@ sub new {
                        parse_errors  => [ $parser->parse_errors ],
                        summary       => $summary,
                        tapdom_config => $tapdom_config,
+                       document_data => $document_data,
                       };
         return bless $tapdata, $class;
 }
