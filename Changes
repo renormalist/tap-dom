@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.12      2015-09-16
         - generate "document_data" key/value entry in the TAP-DOM
           from hot comments of the form: # Test-<key>: <value>
 
