@@ -679,6 +679,28 @@ And the constants can be imported into your namespace:
 
 =head2 tapdom_config
 
+=head2 document_data
+
+A document can contain comment lines which actually contain key/value
+data, like this:
+
+  # Test-vendor-id:  GenuineIntel
+  # Test-cpu-model:  Intel(R) Core(TM) i7-3667U CPU @ 2.00GHz
+  # Test-cpu-family: 6
+  # Test-flags.fpu:  1
+
+Those lines are converted into a hash by splitting it at the C<:>
+delimiter and stripping the C<# Test-> prefix. The resulting data
+structure looks like this:
+
+  # ... inside TAP::DOM ...
+  document_data => {
+                    'vendor-id' => 'GenuineIntel',
+                    'cpu-model' => #Intel(R) Core(TM) i7-3667U CPU @ 2.00GHz',
+                    'cpu-family' => 6,
+                    'flags.fpu' =>  1,
+                   },
+
 =head2 tests_planned
 
 =head2 tests_run
