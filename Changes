@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.13      2016-02-26
         - add forgotten 'planned' attribute from ::Aggregator
 
 0.12      2015-09-16
