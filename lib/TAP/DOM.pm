@@ -202,6 +202,7 @@ sub new {
          (
           failed          => scalar $aggregate->failed,
           parse_errors    => scalar $aggregate->parse_errors,
+          planned         => scalar $aggregate->planned,
           passed          => scalar $aggregate->passed,
           skipped         => scalar $aggregate->skipped,
           todo            => scalar $aggregate->todo,

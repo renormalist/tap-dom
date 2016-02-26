@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - add forgotten 'planned' attribute from ::Aggregator
 
 0.12      2015-09-16
         - generate "document_data" key/value entry in the TAP-DOM
