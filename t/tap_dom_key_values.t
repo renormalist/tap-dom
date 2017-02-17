@@ -35,6 +35,7 @@ is($dom->{summary}{has_problems}, 0,      "summary has_problems");
 
 is($dom->{document_data}{'cpu-model'},         'Intel(R) Core(TM) i7-3667U CPU @ 2.00GHz', "hash - key contains dashes");
 is($dom->{document_data}{'flags.fpu'},         1,                                          "hash - key contains dots");
+is($dom->{document_data}{'elapsed-time[ms]'},  13,                                         "hash - key contains brackets");
 is($dom->{document_data}{'cpuinfo/processor'}, 3,                                          "hash - key contains slashes");
 is($dom->{document_data}{'cpu family'},        6,                                          "hash - key contains whitespace (inner whitespace only)");
 is($dom->{document_data}{'vendor_id'},         'GenuineIntel',                             "hash - key contains underscore");

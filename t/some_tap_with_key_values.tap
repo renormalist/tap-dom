@@ -17,4 +17,5 @@ ok 2 - zomtec
    ...
 # Test-cpuinfo:flags.fpu: 1
 # Test-flags.fpu: 1
+# Test-elapsed-time[ms]: 13
 # Test-cpuinfo/processor: 3
