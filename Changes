@@ -1,6 +1,21 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - new module TAP::DOM::Archive to extract TAP::Archive files
+          into a multi-document super DOM
+
+        - Store "# Test-key: value" entries also as 'kv_data' under
+          their parent ok line.
+
+          Please note, this creates redundancy with global
+          'document_data' as it still stores entries there. This is to
+          keep backwards compatibility with existing TAP documents'
+          DOM.
+
+          If you want clear separation between global 'document_data'
+          from #Test-key:value entries not belonging to a test
+          ok/notok line and 'kv_data' entries, then set option
+          'disable_global_kv_data'.
 
 0.13      2016-02-26
         - add forgotten 'planned' attribute from ::Aggregator
