@@ -95,6 +95,7 @@ sub new {
         my %IGNORE      = map { $_ => 1 } @{$args{ignore}};
         my $IGNORELINES = $args{ignorelines};
         my $USEBITSETS  = $args{usebitsets};
+        my $DISABLE_GLOBAL_KV_DATA  = $args{disable_global_kv_data};
         delete $args{ignore};
         delete $args{ignorelines};
         delete $args{usebitsets};
@@ -180,7 +181,13 @@ sub new {
                         my ($key, $value) = ($1, $2);
                         $key =~ s/^\s+//; # strip leading  whitespace
                         $key =~ s/\s+$//; # strip trailing whitespace
-                        $document_data{$key} = $value;
+
+                        # Store "# Test-key: value" entries also as
+                        # 'kv_data' under their parent ok line.
+                        if ($lines[-1]->is_test) {
+                            $lines[-1]->{kv_data}{$key} = $value;
+                        }
+                        $document_data{$key} = $value unless $lines[-1]->is_test && $DISABLE_GLOBAL_KV_DATA;
                 }
 
                 # yaml and comments are taken as children of the line before
