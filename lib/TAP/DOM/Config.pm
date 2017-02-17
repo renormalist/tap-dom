@@ -1,5 +1,5 @@
 package TAP::DOM::Config;
-# ABSTRACT: TAP::DOM::Config - Accessors for TAP::DOM specific parse config
+# ABSTRACT: Accessors for TAP::DOM specific parse config
 
 use 5.006;
 use strict;

@@ -1,5 +1,5 @@
 package TAP::DOM::DocumentData;
-# ABSTRACT: TAP::DOM::DocumentData - Accessors for key/value document data
+# ABSTRACT: Accessors for key/value document data
 
 use 5.006;
 use strict;

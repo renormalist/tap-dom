@@ -1,5 +1,5 @@
 package TAP::DOM::Entry;
-# ABSTRACT: TAP::DOM::Entry - Accessors for TAP::DOM line entries
+# ABSTRACT: Accessors for TAP::DOM line entries
 
 use 5.006;
 use strict;

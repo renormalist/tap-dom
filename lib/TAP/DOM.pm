@@ -1,5 +1,5 @@
 package TAP::DOM;
-# ABSTRACT: TAP::DOM - TAP as Document Object Model.
+# ABSTRACT: TAP as Document Object Model.
 
 use 5.006;
 use strict;

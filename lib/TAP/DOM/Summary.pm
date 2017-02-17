@@ -1,5 +1,5 @@
 package TAP::DOM::Summary;
-# ABSTRACT: TAP::DOM::Summary - Accessors for TAP::DOM summary part
+# ABSTRACT: Accessors for TAP::DOM summary part
 
 use 5.006;
 use strict;
