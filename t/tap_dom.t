@@ -7,6 +7,7 @@ use Test::More 0.88;
 
 use TAP::DOM;
 use Data::Dumper;
+use Scalar::Util 'blessed';
 
 my $tap;
 {
@@ -18,7 +19,10 @@ my $tap;
 
 my $tapdata = TAP::DOM->new( tap => $tap );
 #my $tapdata = tapdata( tap => $tap );
-# print STDERR Dumper($tapdata);
+
+#diag "tapdom: ".Dumper($tapdata);
+#diag "tojson: ".Dumper($tapdata->TO_JSON);
+
 
 is($tapdata->{tests_run},      8, "tests_run");
 is($tapdata->{tests_planned},  6, "tests_planned");
@@ -59,5 +63,8 @@ is($tapdata->summary->wait,         0,      "summary wait via methods");
 is($tapdata->summary->status,       "FAIL", "summary status via methods");
 is($tapdata->summary->all_passed,   0,      "summary all_passed via methods");
 is($tapdata->summary->has_problems, 1,      "summary has_problems via methods");
+
+is (blessed($tapdata),          'TAP::DOM', 'tapdom blessed by default');
+is (blessed($tapdata->TO_JSON), undef,      'json unblessed by default');
 
 done_testing();
