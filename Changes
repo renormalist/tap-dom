@@ -1,7 +1,6 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
-        - TO_JSON() with a default JSON conversion (Cpanel::JSON::XS)
 
 0.14      2017-02-17
         - new module TAP::DOM::Archive to extract TAP::Archive files

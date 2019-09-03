@@ -80,15 +80,6 @@ use Class::XSAccessor
                         document_data
                      )];
 
-sub TO_JSON {
-    require Data::Structure::Util;
-    require Cpanel::JSON::XS;
-    require Storable;
-
-    my $copy = Storable::dclone($_[0]);
-    return  Cpanel::JSON::XS::encode_json(Data::Structure::Util::unbless($copy));
-}
-
 sub new {
         # hash or hash ref
         my $class = shift;
@@ -380,12 +371,6 @@ But there are more, see L<TAP::Parser|TAP::Parser>.
 =head2 to_tap
 
 Called on a TAP::DOM object it returns a string that is TAP.
-
-=head2 TO_JSON
-
-Returns JSON formatted string based on L<Cpanel::JSON::XS>.
-
-Usually be used implicitely by JSON aware fromeworks like Mojo.
 
 =head1 STRUCTURE
 
