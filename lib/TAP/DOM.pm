@@ -99,6 +99,7 @@ sub new {
         delete $args{ignore};
         delete $args{ignorelines};
         delete $args{usebitsets};
+        delete $args{disable_global_kv_data};
 
         my $parser = new TAP::Parser( { %args } );
 
