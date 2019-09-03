@@ -29,6 +29,7 @@ our $HAS_SKIP     = 2048;
 our $HAS_TODO     = 4096;
 
 our $document_data_regex = qr/^#\s*Test-([^:]+)\s*:\s*(.*)$/;
+our @tap_dom_args = (qw(ignore ignorelines usebitsets disable_global_kv_data));
 
 use parent 'Exporter';
 our @EXPORT_OK = qw( $IS_PLAN
