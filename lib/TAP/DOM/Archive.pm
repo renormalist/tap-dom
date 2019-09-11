@@ -28,9 +28,14 @@ sub new {
         }
 
         my $tap_documents = _read_tap_from_archive(\%args);
+
         my $tap_dom_list  = {
             meta => $tap_documents->{meta},
-            dom  => [ map { TAP::DOM->new(tap => $_, %tap_dom_args) } @{$tap_documents->{tap}} ],
+            dom  => [
+                map { TAP::DOM->new(tap => $_, %tap_dom_args) }
+                grep { defined $_ }
+                @{$tap_documents->{tap}}
+            ],
         };
         return bless $tap_dom_list, $class;
 }
