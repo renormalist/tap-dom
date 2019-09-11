@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - fix argument handling: pass-through to TAP::DOM, delete
+          newly introduced 'disable_global_kv_data'
+        - TAP::Archive reading skips nonexistent files from meta.yml
 
 0.14      2017-02-17
         - new module TAP::DOM::Archive to extract TAP::Archive files
