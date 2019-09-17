@@ -276,8 +276,8 @@ sub _entry_to_tapline
                                 "ok",
                                 ($entry->{number} || ()),
                                 ($entry->{description} || ()),
-                                ($entry->has_skip   ? "# SKIP ".($entry->{explanation} || "")
-                                 : $entry->has_todo ? "# TODO ".($entry->{explanation} || "")
+                                ($entry->{has_skip}   ? "# SKIP ".($entry->{explanation} || "")
+                                 : $entry->{has_todo }? "# TODO ".($entry->{explanation} || "")
                                  : ()),
                                );
         }
