@@ -28,7 +28,6 @@ our $IS_YAML      = 1024;
 our $HAS_SKIP     = 2048;
 our $HAS_TODO     = 4096;
 
-our $document_data_regex = qr/^#\s*Test-([^:]+)\s*:\s*(.*)$/;
 our @tap_dom_args = (qw(ignore ignorelines usebitsets disable_global_kv_data));
 
 use parent 'Exporter';
@@ -81,6 +80,10 @@ use Class::XSAccessor
                         document_data
                      )];
 
+sub _capture_group {
+    my ($s, $n) = @_; substr($s, $-[$n], $+[$n] - $-[$n]);
+}
+
 sub new {
         # hash or hash ref
         my $class = shift;
@@ -97,10 +100,14 @@ sub new {
         my $IGNORELINES = $args{ignorelines};
         my $USEBITSETS  = $args{usebitsets};
         my $DISABLE_GLOBAL_KV_DATA  = $args{disable_global_kv_data};
+        my $DOC_DATA_PREFIX = $args{document_data_prefix} || 'Test-';
         delete $args{ignore};
         delete $args{ignorelines};
         delete $args{usebitsets};
         delete $args{disable_global_kv_data};
+        delete $args{document_data_prefix};
+
+        my $document_data_regex = qr/^#\s*$DOC_DATA_PREFIX([^:]+)\s*:\s*(.*)$/;
 
         my $parser = new TAP::Parser( { %args } );
 
@@ -180,7 +187,8 @@ sub new {
 
                 if ($result->is_comment and $result->as_string =~ $document_data_regex)
                 {
-                        my ($key, $value) = ($1, $2);
+                        # we can't use $1, $2 because the regex could contain configured other groups
+                        my ($key, $value) = (_capture_group($result->as_string, -2), _capture_group($result->as_string, -1));
                         $key =~ s/^\s+//; # strip leading  whitespace
                         $key =~ s/\s+$//; # strip trailing whitespace
 

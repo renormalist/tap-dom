@@ -5,7 +5,9 @@ Revision history for {{$dist->name}}
           newly introduced 'disable_global_kv_data'
         - TAP::Archive reading skips nonexistent files from meta.yml
         - to_tap() works with unblessed inner elements (though the
-          TAP::DOM itself needs bless to call ->to_tap method).
+          TAP::DOM itself needs bless to call ->to_tap method)
+        - new option 'document_data_prefix' to specify the prefix in
+          '# Test-key: value' lines
 
 0.14      2017-02-17
         - new module TAP::DOM::Archive to extract TAP::Archive files
