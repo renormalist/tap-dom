@@ -75,6 +75,7 @@ use Class::XSAccessor
                         has_problems
                         exit
                         parse_errors
+                        parse_errors_msgs
                         summary
                         tapdom_config
                         document_data
@@ -257,7 +258,8 @@ sub new {
                        end_time      => $parser->end_time,
                        has_problems  => $parser->has_problems,
                        exit          => $parser->exit,
-                       parse_errors  => [ $parser->parse_errors ],
+                       parse_errors  => scalar $parser->parse_errors,
+                       parse_errors_msgs  => [ $parser->parse_errors ],
                        summary       => $summary,
                        tapdom_config => $tapdom_config,
                        document_data => $document_data,
@@ -405,7 +407,8 @@ yourself.
   'is_good_plan'  => 0,
   'has_problems'  => 2,
   'skip_all'      => undef,
-  'parse_errors'  => [
+  'parse_errors'  => 1,
+  'parse_errors_msgs'  => [
                       'Bad plan.  You planned 6 tests but ran 8.'
                      ],
   'pragmas'       => [
@@ -684,6 +687,8 @@ And the constants can be imported into your namespace:
 =head2 is_good_plan
 
 =head2 parse_errors
+
+=head2 parse_errors_msgs
 
 =head2 plan
 
