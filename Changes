@@ -8,6 +8,9 @@ Revision history for {{$dist->name}}
           TAP::DOM itself needs bless to call ->to_tap method)
         - new option 'document_data_prefix' to specify the prefix in
           '# Test-key: value' lines
+        - Experimental: Allow TAP preprocessing
+          This can help to reduce the tap line count before it hits
+          the TAP parser, assuming regex processing is faster.
         - Incompatible change: de-confuse 'parse_errors'
           * it now also contains the count of parse errors not the
             actual messages anymore - those are now in

@@ -28,7 +28,13 @@ our $IS_YAML      = 1024;
 our $HAS_SKIP     = 2048;
 our $HAS_TODO     = 4096;
 
-our @tap_dom_args = (qw(ignore ignorelines usebitsets disable_global_kv_data));
+our @tap_dom_args = (qw(ignore
+                        ignorelines
+                        usebitsets
+                        disable_global_kv_data
+                        preprocess_ignorelines
+                        preprocess_tap
+                     ));
 
 use parent 'Exporter';
 our @EXPORT_OK = qw( $IS_PLAN
@@ -60,6 +66,8 @@ our %EXPORT_TAGS = (constants => [ qw( $IS_PLAN
                                        $HAS_TODO
                                     ) ] );
 
+our $obvious_tap_line = qr/(1\.\.|ok\s|not\s+ok\s|#|\s|tap\s+version|pragma|Bail out!)/i;
+
 use Class::XSAccessor
     chained     => 1,
     accessors   => [qw( plan
@@ -85,6 +93,36 @@ sub _capture_group {
     my ($s, $n) = @_; substr($s, $-[$n], $+[$n] - $-[$n]);
 }
 
+# Optimize the TAP text before parsing it.
+sub preprocess_ignorelines {
+    my %args = @_;
+
+    if ($args{tap}) {
+
+        if (my $ignorelines = $args{ignorelines}) {
+            my $tap = $args{tap};
+            $tap =~ s/^$ignorelines.*[\r\n]*//mg;
+            $args{tap} = $tap;
+            delete $args{ignorelines}; # don't try it again during parsing later
+        }
+    }
+
+    return %args
+}
+
+# Filter away obvious non-TAP lines before parsing it.
+sub preprocess_tap {
+    my %args = @_;
+
+    if ($args{tap}) {
+      my $tap = $args{tap};
+        $tap =~ s/^(?!$obvious_tap_line).*[\r\n]*//mg;
+        $args{tap} = $tap;
+    }
+
+    return %args
+}
+
 sub new {
         # hash or hash ref
         my $class = shift;
@@ -97,6 +135,9 @@ sub new {
         my $bailout;
         my %document_data;
 
+        %args = preprocess_ignorelines(%args) if $args{preprocess_ignorelines};
+        %args = preprocess_tap(%args)         if $args{preprocess_tap};
+
         my %IGNORE      = map { $_ => 1 } @{$args{ignore}};
         my $IGNORELINES = $args{ignorelines};
         my $USEBITSETS  = $args{usebitsets};
@@ -107,6 +148,8 @@ sub new {
         delete $args{usebitsets};
         delete $args{disable_global_kv_data};
         delete $args{document_data_prefix};
+        delete $args{preprocess_ignorelines};
+        delete $args{preprocess_tap};
 
         my $document_data_regex = qr/^#\s*$DOC_DATA_PREFIX([^:]+)\s*:\s*(.*)$/;
 
@@ -618,9 +661,9 @@ Use it like this:
 =head2 Strip unneccessary lines
 
 You can ignore complete lines from the input TAP as if they weren't
-existing. Of course you can break the TAP with this, so usually you
-only apply this to non-TAP lines or diagnostics you are not interested
-in.
+existing by by setting a regular expression in C<ignorelines>. Of
+course you can break the TAP with this, so usually you only apply this
+to non-TAP lines or diagnostics you are not interested in.
 
 My primary use-case is TAP with large parts of logfiles included with
 a prefixed "## " just for dual-using the TAP also as an archive of the
@@ -632,6 +675,39 @@ they only blow up the memory for the TAP-DOM:
                          );
 
 See C<t/some_tap_ignore_lines.t> for an example.
+
+=head2 Pre-process TAP
+
+B<WARNING, experimental features!>
+
+=over 4
+
+=item * preprocess_ignorelines
+
+By setting that option, C<ignorelines> is applied to the input TAP
+text I<before> it is parsed.
+
+This could help to speed up TAP parsing when there is a huge amount of
+non-TAP lines that the regex engine could throw away faster than
+TAP::Parser would parse it line by line.
+
+B<There is a risk>: without that option, only lines are filtered that
+are already parsed as lines by the TAP parser. If applied before
+parsing, the regex could mis-match non-trivial situations.
+
+=item * preprocess_tap
+
+With this option, any lines that don't obviously look like TAP are
+stripped away.
+
+B<There is a substantial risk>, though: the purely line-based regex
+processing could screw up when it mis-matches lines. Parsing TAP is
+not as obvious as it seems first. Just think of unindented YAML or
+indented YAML with strange multi-line spanning values at line starts,
+or the (non-standardized and unsupported) nested indented TAP. So be
+careful!
+
+=back
 
 =head1 USING BITSETS
 
