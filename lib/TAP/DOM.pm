@@ -237,8 +237,10 @@ sub new {
                         $key =~ s/\s+$//; # strip trailing whitespace
 
                         # Store "# Test-key: value" entries also as
-                        # 'kv_data' under their parent ok line.
-                        if ($lines[-1]->is_test) {
+                        # 'kv_data' under their parent line.
+                        # That line should be a test or a plan line, so that its
+                        # place (or "data path") is structurally always the same.
+                        if ($lines[-1]->is_test or $lines[-1]->is_plan) {
                             $lines[-1]->{kv_data}{$key} = $value;
                         }
                         $document_data{$key} = $value unless $lines[-1]->is_test && $DISABLE_GLOBAL_KV_DATA;
