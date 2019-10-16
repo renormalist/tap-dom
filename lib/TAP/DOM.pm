@@ -34,6 +34,8 @@ our @tap_dom_args = (qw(ignore
                         disable_global_kv_data
                         preprocess_ignorelines
                         preprocess_tap
+                        lowercase_fieldnames
+                        lowercase_fieldvalues
                      ));
 
 use parent 'Exporter';
@@ -143,6 +145,8 @@ sub new {
         my $USEBITSETS  = $args{usebitsets};
         my $DISABLE_GLOBAL_KV_DATA  = $args{disable_global_kv_data};
         my $DOC_DATA_PREFIX = $args{document_data_prefix} || 'Test-';
+        my $LOWERCASE_FIELDNAMES = $args{lowercase_fieldnames};
+        my $LOWERCASE_FIELDVALUES = $args{lowercase_fieldvalues};
         delete $args{ignore};
         delete $args{ignorelines};
         delete $args{usebitsets};
@@ -150,6 +154,8 @@ sub new {
         delete $args{document_data_prefix};
         delete $args{preprocess_ignorelines};
         delete $args{preprocess_tap};
+        delete $args{lowercase_fieldnames};
+        delete $args{lowercase_fieldvalues};
 
         my $document_data_regex = qr/^#\s*$DOC_DATA_PREFIX([^:]+)\s*:\s*(.*)$/;
 
@@ -235,6 +241,10 @@ sub new {
                         my ($key, $value) = (_capture_group($result->as_string, -2), _capture_group($result->as_string, -1));
                         $key =~ s/^\s+//; # strip leading  whitespace
                         $key =~ s/\s+$//; # strip trailing whitespace
+
+                        # optional
+                        $key   = lc $key   if $LOWERCASE_FIELDNAMES;
+                        $value = lc $value if $LOWERCASE_FIELDVALUES;
 
                         # Store "# Test-key: value" entries also as
                         # 'kv_data' under their parent line.
@@ -753,6 +763,43 @@ And the constants can be imported into your namespace:
 
  use TAP::DOM ':constants';
  if ($tapdom->{lines}[4]{is_has} | $IS_TEST ) {...}
+
+=head1 Tweak the resulting DOM
+
+=head2 Lowercase all key:value fieldnames
+
+By setting option C<lowercase_fieldnames> all field names (hash keys)
+in C<document_data> and C<kv_data> are set to lowercase. This is
+especially helpful to normalize different casing like
+
+ # Test-Strange-Key: some value
+ # Test-strange-key: some value
+ # Test-STRANGE-KEY: some value
+
+etc. all into
+
+  "strange-key" => "some value"
+
+=head2 Lowercase all key:value values
+
+By setting option C<lowercase_fieldvalues> all field values in
+C<document_data> and C<kv_data> are set to lowercase. This is
+especially helpful to normalize different casing like
+
+ # Test-strange-key: Some Value
+ # Test-strange-key: Some value
+ # Test-strange-key: SOME VALUE
+
+etc. all into
+
+  "strange-key" => "some value"
+
+B<Warning:> while the sister option C<lowercase_fieldnames> above is
+obviously helpful to keep the information more together, this
+C<lowercase_fieldvalues> option here should be used with care. You
+loose much more information here which is usually better searched via
+case-insensitive options of the mechanism you use, regular
+expressions, Elasticsearch, etc.
 
 =head1 ACCESSORS
 
