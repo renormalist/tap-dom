@@ -15,6 +15,8 @@ Revision history for {{$dist->name}}
           * it now also contains the count of parse errors not the
             actual messages anymore - those are now in
             'parse_errors_msgs'
+        - new option 'put_dangling_kv_data_under_lazy_plan' to
+          fix a gap when 'disable_global_kv_data' is set.
 
 0.14      2017-02-17
         - new module TAP::DOM::Archive to extract TAP::Archive files
