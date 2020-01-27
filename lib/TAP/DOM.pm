@@ -32,6 +32,7 @@ our @tap_dom_args = (qw(ignore
                         ignorelines
                         usebitsets
                         disable_global_kv_data
+                        put_dangling_kv_data_under_lazy_plan
                         preprocess_ignorelines
                         preprocess_tap
                         lowercase_fieldnames
@@ -136,6 +137,7 @@ sub new {
         my @pragmas;
         my $bailout;
         my %document_data;
+        my %dangling_kv_data;
 
         %args = preprocess_ignorelines(%args) if $args{preprocess_ignorelines};
         %args = preprocess_tap(%args)         if $args{preprocess_tap};
@@ -144,6 +146,7 @@ sub new {
         my $IGNORELINES = $args{ignorelines};
         my $USEBITSETS  = $args{usebitsets};
         my $DISABLE_GLOBAL_KV_DATA  = $args{disable_global_kv_data};
+        my $PUT_DANGLING_KV_DATA_UNDER_LAZY_PLAN  = $args{put_dangling_kv_data_under_lazy_plan};
         my $DOC_DATA_PREFIX = $args{document_data_prefix} || 'Test-';
         my $LOWERCASE_FIELDNAMES = $args{lowercase_fieldnames};
         my $LOWERCASE_FIELDVALUES = $args{lowercase_fieldvalues};
@@ -151,6 +154,7 @@ sub new {
         delete $args{ignorelines};
         delete $args{usebitsets};
         delete $args{disable_global_kv_data};
+        delete $args{put_dangling_kv_data_under_lazy_plan};
         delete $args{document_data_prefix};
         delete $args{preprocess_ignorelines};
         delete $args{preprocess_tap};
@@ -191,7 +195,17 @@ sub new {
                 }
 
                 # plan
-                $plan = $result->as_string if $result->is_plan;
+                if ($result->is_plan) {
+                  $plan = $result->as_string;
+
+                  # save Dangling kv_data to plan entry. The situation
+                  # that we already collected kv_data but haven't got
+                  # a plan yet should only happen in documents with
+                  # lazy plans (plan at the end).
+                  if ($PUT_DANGLING_KV_DATA_UNDER_LAZY_PLAN and keys %dangling_kv_data) {
+                    $entry->{kv_data}{$_} = $dangling_kv_data{$_} foreach keys %dangling_kv_data;
+                  }
+                }
 
                 # meta info
                 foreach ((qw(has_skip has_todo))) {
@@ -252,6 +266,15 @@ sub new {
                         # place (or "data path") is structurally always the same.
                         if ($lines[-1]->is_test or $lines[-1]->is_plan) {
                             $lines[-1]->{kv_data}{$key} = $value;
+                        } else {
+                            if (!$plan) {
+                              # We haven't got a plan yet, so that
+                              # kv_data entry would get lost. As we
+                              # might still get a lazy plan at end
+                              # of document, so we save it up for
+                              # that potential plan entry.
+                              $dangling_kv_data{$key} = $value;
+                            }
                         }
                         $document_data{$key} = $value unless $lines[-1]->is_test && $DISABLE_GLOBAL_KV_DATA;
                 }
@@ -800,6 +823,35 @@ C<lowercase_fieldvalues> option here should be used with care. You
 loose much more information here which is usually better searched via
 case-insensitive options of the mechanism you use, regular
 expressions, Elasticsearch, etc.
+
+=head2 Placing key:value pairs
+
+Normally a key:value pair C<{foo => bar}> from a line like
+
+  # Test-foo: bar
+
+ends up as entry in a has C<kv_values> under the entry before that
+line - which ideally is either a normal ok/not_ok line or a plan line.
+
+If that's not the case then it is not clear where they belong. Early
+TAP::DOM versions had put them under a global entry C<document_data>.
+
+However this makes these entries inconsistently appear in different
+levels of the DOM. so you can suppress that old behaviour by setting
+C<disable_global_kv_data> to 1.
+
+However, with that option now, there can be lines that appear directly
+at the start with no preceding parent line, in case the plan comes at
+the end of the document. To not loose those key values they can be
+saved up until the plan appears later and put it there. As this
+reorders data inside the DOM differently from the original document
+you must explicitely request that behaviour by setting
+C<put_dangling_kv_data_under_lazy_plan> to 1.
+
+Summary: for consistency it is suggested to set both options:
+
+ disable_global_kv_data => 1,
+ put_dangling_kv_data_under_lazy_plan => 1
 
 =head1 ACCESSORS
 
