@@ -33,10 +33,13 @@ our @tap_dom_args = (qw(ignore
                         usebitsets
                         disable_global_kv_data
                         put_dangling_kv_data_under_lazy_plan
+                        document_data_prefix
+                        document_data_ignore
                         preprocess_ignorelines
                         preprocess_tap
                         lowercase_fieldnames
                         lowercase_fieldvalues
+                        trim_fieldvalues
                      ));
 
 use parent 'Exporter';
