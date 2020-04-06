@@ -151,6 +151,7 @@ sub new {
         my $DOC_DATA_IGNORE = $args{document_data_ignore};
         my $LOWERCASE_FIELDNAMES = $args{lowercase_fieldnames};
         my $LOWERCASE_FIELDVALUES = $args{lowercase_fieldvalues};
+        my $TRIM_FIELDVALUES = $args{trim_fieldvalues};
         delete $args{ignore};
         delete $args{ignorelines};
         delete $args{usebitsets};
@@ -162,6 +163,7 @@ sub new {
         delete $args{preprocess_tap};
         delete $args{lowercase_fieldnames};
         delete $args{lowercase_fieldvalues};
+        delete $args{trim_fieldvalues};
 
         my $document_data_regex = qr/^#\s*$DOC_DATA_PREFIX([^:]+)\s*:\s*(.*)$/;
         my $document_data_ignore = defined($DOC_DATA_IGNORE) ? qr/$DOC_DATA_IGNORE/ : undef;
@@ -259,9 +261,12 @@ sub new {
                         $key =~ s/^\s+//; # strip leading  whitespace
                         $key =~ s/\s+$//; # strip trailing whitespace
 
-                        # optional
+                        # optional lowercase
                         $key   = lc $key   if $LOWERCASE_FIELDNAMES;
                         $value = lc $value if $LOWERCASE_FIELDVALUES;
+
+                        # optional value trimming
+                        $value =~ s/\s+$// if $TRIM_FIELDVALUES; # there can be no leading whitespace
 
                         # skip this field according to regex
                         last if $DOC_DATA_IGNORE and $document_data_ignore and $key =~ $document_data_ignore;
