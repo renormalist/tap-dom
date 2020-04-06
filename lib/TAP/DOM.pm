@@ -148,6 +148,7 @@ sub new {
         my $DISABLE_GLOBAL_KV_DATA  = $args{disable_global_kv_data};
         my $PUT_DANGLING_KV_DATA_UNDER_LAZY_PLAN  = $args{put_dangling_kv_data_under_lazy_plan};
         my $DOC_DATA_PREFIX = $args{document_data_prefix} || 'Test-';
+        my $DOC_DATA_IGNORE = $args{document_data_ignore};
         my $LOWERCASE_FIELDNAMES = $args{lowercase_fieldnames};
         my $LOWERCASE_FIELDVALUES = $args{lowercase_fieldvalues};
         delete $args{ignore};
@@ -156,12 +157,14 @@ sub new {
         delete $args{disable_global_kv_data};
         delete $args{put_dangling_kv_data_under_lazy_plan};
         delete $args{document_data_prefix};
+        delete $args{document_data_ignore};
         delete $args{preprocess_ignorelines};
         delete $args{preprocess_tap};
         delete $args{lowercase_fieldnames};
         delete $args{lowercase_fieldvalues};
 
         my $document_data_regex = qr/^#\s*$DOC_DATA_PREFIX([^:]+)\s*:\s*(.*)$/;
+        my $document_data_ignore = defined($DOC_DATA_IGNORE) ? qr/$DOC_DATA_IGNORE/ : undef;
 
         my $parser = new TAP::Parser( { %args } );
 
@@ -250,7 +253,7 @@ sub new {
                 $entry->{data}         = $result->data if $result->is_yaml && !$IGNORE{data};
 
                 if ($result->is_comment and $result->as_string =~ $document_data_regex)
-                {
+                {{ # extra block for 'last'
                         # we can't use $1, $2 because the regex could contain configured other groups
                         my ($key, $value) = (_capture_group($result->as_string, -2), _capture_group($result->as_string, -1));
                         $key =~ s/^\s+//; # strip leading  whitespace
@@ -259,6 +262,9 @@ sub new {
                         # optional
                         $key   = lc $key   if $LOWERCASE_FIELDNAMES;
                         $value = lc $value if $LOWERCASE_FIELDVALUES;
+
+                        # skip this field according to regex
+                        last if $DOC_DATA_IGNORE and $document_data_ignore and $key =~ $document_data_ignore;
 
                         # Store "# Test-key: value" entries also as
                         # 'kv_data' under their parent line.
@@ -277,7 +283,7 @@ sub new {
                             }
                         }
                         $document_data{$key} = $value unless $lines[-1]->is_test && $DISABLE_GLOBAL_KV_DATA;
-                }
+                }}
 
                 # yaml and comments are taken as children of the line before
                 if ($result->is_yaml or $result->is_comment and @lines)
