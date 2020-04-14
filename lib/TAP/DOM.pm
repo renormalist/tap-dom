@@ -30,6 +30,7 @@ our $HAS_TODO     = 4096;
 
 our @tap_dom_args = (qw(ignore
                         ignorelines
+                        dontignorelines
                         usebitsets
                         disable_global_kv_data
                         put_dangling_kv_data_under_lazy_plan
@@ -106,8 +107,22 @@ sub preprocess_ignorelines {
     if ($args{tap}) {
 
         if (my $ignorelines = $args{ignorelines}) {
+            my $dontignorelines = $args{dontignorelines};
             my $tap = $args{tap};
-            $tap =~ s/^$ignorelines.*[\r\n]*//mg;
+            if ($dontignorelines) {
+                # HIGHLY EXPERIMENTAL!
+                #
+                # We convert the 'dontignorelines' regex into a negative-lookahead
+                # condition and prepend it before the 'ignorelines'.
+                #
+                # Why? Because we want to utilize the cleanup in one single
+                # operation as fast as the regex engine can do it.
+                my $re_dontignorelines = $dontignorelines ? "(?!$dontignorelines)" : '';
+                my $re_filter = qr/^$re_dontignorelines$ignorelines.*[\r\n]*/m; # the /m scope needs to be here!
+                $tap =~ s/$re_filter//g;
+            } else {
+                $tap =~ s/^$ignorelines.*[\r\n]*//mg;
+            }
             $args{tap} = $tap;
             delete $args{ignorelines}; # don't try it again during parsing later
         }
@@ -147,6 +162,7 @@ sub new {
 
         my %IGNORE      = map { $_ => 1 } @{$args{ignore}};
         my $IGNORELINES = $args{ignorelines};
+        my $DONTIGNORELINES = $args{dontignorelines};
         my $USEBITSETS  = $args{usebitsets};
         my $DISABLE_GLOBAL_KV_DATA  = $args{disable_global_kv_data};
         my $PUT_DANGLING_KV_DATA_UNDER_LAZY_PLAN  = $args{put_dangling_kv_data_under_lazy_plan};
@@ -157,6 +173,7 @@ sub new {
         my $TRIM_FIELDVALUES = $args{trim_fieldvalues};
         delete $args{ignore};
         delete $args{ignorelines};
+        delete $args{dontignorelines};
         delete $args{usebitsets};
         delete $args{disable_global_kv_data};
         delete $args{put_dangling_kv_data_under_lazy_plan};
@@ -179,7 +196,7 @@ sub new {
         while ( my $result = $parser->next ) {
                 no strict 'refs';
 
-                next if $IGNORELINES && $result->raw =~ m/$IGNORELINES/;
+                next if $IGNORELINES && $result->raw =~ m/$IGNORELINES/ && !($DONTIGNORELINES && $result->raw =~ m/$DONTIGNORELINES/);
 
                 my $entry = TAP::DOM::Entry->new;
                 $entry->{is_has} = 0 if $USEBITSETS;
@@ -332,6 +349,7 @@ sub new {
          (
           ignore                               => \%IGNORE,
           ignorelines                          => $IGNORELINES,
+          dontignorelines                      => $DONTIGNORELINES,
           usebitsets                           => $USEBITSETS,
           disable_global_kv_data               => $DISABLE_GLOBAL_KV_DATA,
           put_dangling_kv_data_under_lazy_plan => $PUT_DANGLING_KV_DATA_UNDER_LAZY_PLAN,
@@ -479,7 +497,8 @@ and returns a big data structure containing the extracted results.
    tap                                  => $tap
    disable_global_kv_data               => 1,
    put_dangling_kv_data_under_lazy_plan => 1,
-   ignorelines                          => '^(## |# Test-mymeta_)',
+   ignorelines                          => '(## |# Test-mymeta_)',
+   dontignorelines                      => '# Test-mymeta_(tool1|tool2)_',
    preprocess_ignorelines               => 1,
    preprocess_tap                       => 1,
    usebitsets                           => 0,
@@ -505,6 +524,44 @@ A regular expression describing lines to ignore.
 
 Be careful to not screw up semantically relevant lines, like indented
 YAML data.
+
+The regex is internally prepended with a start-of-line C<^> anchor.
+
+=item dontignorelines (EXPERIMENTAL!)
+
+This is the whitelist of lines to B<not> being skipped when using the
+C<ignore> blacklist.
+
+The C<dontignorelines> feature is B<HIGHLY EXPERIMENTAL>, in
+particular in combination with C<preprocess_ignorelines>.
+
+Background: the preprocessing is done in a single regex operation for
+speed reasons, and to do that the C<dontignorelines> regex is turned
+into a I<zero-width negative-lookahead condition> and prepended before
+the C<ignorelines> condition into a combined regex.
+
+Without C<preprocess_ignorelines> it is a relatively harmless
+additional condition during TAP line processing.
+
+Survival tips:
+
+=over 2
+
+=item * have unit tests for your setup
+
+=item * do not use C<^> anchors neither in C<ignorelines> nor in
+C<dontignorelines> but rely on the implicitly prepended anchors.
+
+=item * write both C<ignorelines> and C<dontignorelines> completely
+describing from beginning of line (yet without the C<^> anchor).
+
+=item * do not use it but define C<ignorelines> instead with your own
+zero-width negative-lookaround conditions
+
+=item * know the zero-width negative look-around conditions of your
+use Perl version
+
+=back
 
 =item usebitsets
 
