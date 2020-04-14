@@ -460,9 +460,123 @@ change, so your data tools can, well, rely on it.
 Constructor which immediately triggers parsing the TAP via TAP::Parser
 and returns a big data structure containing the extracted results.
 
-All parameters are passed through to TAP::Parser, except C<ignore>,
-C<ignorelines> and C<usebitsets>, see sections "HOW TO STRIP DETAILS"
-and "USING BITSETS". Usually the options are just one of those:
+=head3 Synopsis
+
+ my $tap;
+ {
+   local $/; open (TAP, '<', 't/some_tap.txt') or die;
+   $tap = <TAP>;
+   close TAP;
+ }
+ my $tapdata = TAP::DOM->new (
+   tap                                  => $tap
+   disable_global_kv_data               => 1,
+   put_dangling_kv_data_under_lazy_plan => 1,
+   ignorelines                          => '^(## |# Test-mymeta_)',
+   preprocess_ignorelines               => 1,
+   preprocess_tap                       => 1,
+   usebitsets                           => 0,
+   ignore                               => ['as_string'], # keep 'raw' which is the unmodified variant
+   document_data_prefix                 => '(MyApp|Test)-',
+   lowercase_fieldnames                 => 1,
+   trim_fieldvalues                     => 1,
+ );
+
+=head3 Arguments
+
+=over 4
+
+=item ignore
+
+Arrayref of fieldnames not to contain in generated TAP::DOM. For
+example you can skip the C<as_string> field which is often a redundant
+variant of C<raw>.
+
+=item ignorelines
+
+A regular expression describing lines to ignore.
+
+Be careful to not screw up semantically relevant lines, like indented
+YAML data.
+
+=item usebitsets
+
+Instead of having a lot of long boolean fields like
+
+ has_skip => 1
+ has_todo => 0
+
+you can encode all of them into a compact bitset
+
+ is_has => $SOME_NUMERIC_REPRESENTATION
+
+This field must be evaluated later with bit-comparison operators.
+
+Originally meant as memory-saving mechanism it turned out not to be
+worth the hazzle.
+
+=item disable_global_kv_data
+
+Early TAP::DOM versions put all lines like
+
+  # Test-foo: bar
+
+into a global hash. Later these fields are placed as children under
+their parent C<ok>/C<not ok> line but kept globally for backwards
+compatibility. With this flag you can drop the redundant global hash.
+
+But see also C<put_dangling_kv_data_under_lazy_plan>.
+
+=item put_dangling_kv_data_under_lazy_plan
+
+This addresses the situation what to do in case a key/value field from
+a line
+
+  # Test-foo: bar
+
+appears without a parent C<ok>/C<not ok> line and the global kv_data
+hash is disabled. When this option is set it's placed under the plan
+as parent.
+
+=item document_data_prefix
+
+To interpret lines like
+
+  # Test-foo: bar
+
+the C<document_data_prefix> is by default set to C<Test-> so that a
+key/value field
+
+  foo => 'bar'
+
+is generated. However, you can have a regular expression to capture
+other or multiple different values as allowed prefixes.
+
+=item document_data_ignore
+
+This is another regex-based way to avoid generating particular
+fields. This regex is matched against the already extracted keys, and
+stops processing of this field for C<document_data> and C<kv_data>.
+
+=item lowercase_fieldnames
+
+If set to a true value all recognized fields are lowercased.
+
+=item lowercase_fieldvalues
+
+If set to a true value all recognized values are lowercased.
+
+=item trim_fieldvalues
+
+If set to a true value all field values are trimmed of trailing
+whitespace. Note that fields don't have leading whitespace as it's
+already consumed away after the fieldname separator colon C<:>.
+
+=back
+
+All other provided parameters are passed through to TAP::Parser, see
+sections "HOW TO STRIP DETAILS" and "USING BITSETS". Usually the
+options are just one of those:
 
   tap => $some_tap_string
 
