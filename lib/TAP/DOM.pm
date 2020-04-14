@@ -330,9 +330,16 @@ sub new {
 
         my $tapdom_config = TAP::DOM::Config->new
          (
-          ignore      => \%IGNORE,
-          ignorelines => $IGNORELINES,
-          usebitsets  => $USEBITSETS,
+          ignore                               => \%IGNORE,
+          ignorelines                          => $IGNORELINES,
+          usebitsets                           => $USEBITSETS,
+          disable_global_kv_data               => $DISABLE_GLOBAL_KV_DATA,
+          put_dangling_kv_data_under_lazy_plan => $PUT_DANGLING_KV_DATA_UNDER_LAZY_PLAN,
+          document_data_prefix                 => $DOC_DATA_PREFIX,
+          document_data_ignore                 => $DOC_DATA_IGNORE,
+          lowercase_fieldnames                 => $LOWERCASE_FIELDNAMES,
+          lowercase_fieldvalues                => $LOWERCASE_FIELDVALUES,
+          trim_fieldvalues                     => $TRIM_FIELDVALUES,
          );
 
         my $document_data = TAP::DOM::DocumentData->new(%document_data);
