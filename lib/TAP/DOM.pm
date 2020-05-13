@@ -440,8 +440,10 @@ sub to_tap
     my @taplines = $self->_lines_to_tap($self->{lines});
     unshift @taplines, $self->{plan};
     unshift @taplines, "TAP version ".$self->{version};
-    my $tap = join("\n", @taplines)."\n";
-    return $tap;
+
+    return wantarray
+      ? @taplines
+      : join("\n", @taplines)."\n";
 }
 
 1; # End of TAP::DOM
