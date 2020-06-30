@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - more substantial version++
 
 0.15      2020-06-30
         - === Warning - Incompatibility changes ahead! ===
