@@ -1,6 +1,12 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - === Warning - Incompatibility changes ahead! ===
+          This release contains several changes towards a more
+          consistent data handling. For casual users nothing
+          substantially should change. But if you are one of the
+          power users out there (I'm looking at you, Amzn), then
+          read this changelog carefully.
         - fix argument handling: pass-through to TAP::DOM, delete
           newly introduced 'disable_global_kv_data'
         - TAP::Archive reading skips nonexistent files from meta.yml
