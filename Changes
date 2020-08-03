@@ -3,7 +3,7 @@ Revision history for {{$dist->name}}
 {{$NEXT}}
 
 0.91      2020-06-30
-        - INCOMPATIBILITY WARNING ===
+        - === INCOMPATIBILITY WARNING ===
 
           This release contains several changes towards a more
           consistent data handling. For casual users nothing
@@ -36,7 +36,7 @@ Revision history for {{$dist->name}}
         - new option 'put_dangling_kv_data_under_lazy_plan' to
           fix a gap when 'disable_global_kv_data' is set.
 
-        - new option 'trim_fieldvalues' to tirm trailing whitespace
+        - new option 'trim_fieldvalues' to trim trailing whitespace
           from document_data/kv_data fields
 
         - new option 'dontignorelines' (HIGHLY EXPERIMENTAL!) to
