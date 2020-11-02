@@ -14,6 +14,7 @@ use Class::XSAccessor
                         type
                         data
                         number
+                        severity
                         as_string
                         directive
                         description

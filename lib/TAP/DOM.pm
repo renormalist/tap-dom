@@ -73,6 +73,34 @@ our %EXPORT_TAGS = (constants => [ qw( $IS_PLAN
                                        $HAS_TODO
                                     ) ] );
 
+# TAP severity level definition:
+#
+#   |-----------+-------+----------+--------------+----------+------------+------------|
+#   | *is_test* | is_ok | has_todo | is_actual_ok | has_skip | *mnemonic* | *severity* |
+#   |-----------+-------+----------+--------------+----------+------------+------------|
+#   |         0 | undef |        0 |            0 |        0 | missing    |          0 |
+#   |-----------+-------+----------+--------------+----------+------------+------------|
+#   |         1 |     1 |        0 |            0 |        0 | ok         |          1 |
+#   |         1 |     1 |        1 |            1 |        0 | ok_todo    |          2 |
+#   |         1 |     1 |        0 |            0 |        1 | ok_skip    |          3 |
+#   |         1 |     1 |        1 |            0 |        0 | notok_todo |          4 |
+#   |         1 |     0 |        0 |            0 |        0 | notok      |          5 |
+#   |         1 |     0 |        0 |            0 |        1 | notok_skip |          6 |
+#   |-----------+-------+----------+--------------+----------+------------+------------|
+#   |         % |     % |        % |            % |        % | epic_fail  |          % |
+#   |-----------+-------+----------+--------------+----------+------------+------------|
+
+our $severity = {};
+#
+#      {is_test} {is_ok} {has_todo} {is_actual_ok} {has_skip}                    = $severity;
+#
+$severity->  {1}     {1}        {0}            {0}        {0}                    = 1; # ok
+$severity->  {1}     {1}        {1}            {1}        {0}                    = 2; # ok_todo
+$severity->  {1}     {1}        {0}            {0}        {1}                    = 3; # ok_skip
+$severity->  {1}     {1}        {1}            {0}        {0}                    = 4; # notok_todo
+$severity->  {1}     {0}        {0}            {0}        {0}                    = 5; # notok
+$severity->  {1}     {0}        {0}            {0}        {1}                    = 6; # notok_skip
+
 our $obvious_tap_line = qr/(1\.\.|ok\s|not\s+ok\s|#|\s|tap\s+version|pragma|Bail out!)/i;
 
 use Class::XSAccessor
@@ -309,6 +337,17 @@ sub new {
                         }
                         $document_data{$key} = $value unless $lines[-1]->is_test && $DISABLE_GLOBAL_KV_DATA;
                 }}
+
+                # calculate severity
+                if ($entry->{is_test}) {
+                  $entry->{severity} = $severity
+                    ->{$entry->{is_test}}
+                    ->{$entry->{is_ok}}
+                    ->{$entry->{has_todo}}
+                    ->{$entry->{is_actual_ok}}
+                    ->{$entry->{has_skip}};
+                }
+                $entry->{severity} = 0 if not defined $entry->{severity};
 
                 # yaml and comments are taken as children of the line before
                 if ($result->is_yaml or $result->is_comment and @lines)
@@ -734,6 +773,7 @@ yourself.
                'is_yaml'      => 0,
                'has_skip'     => 0,
                'has_todo'     => 0,
+               'severity'     => 0,
                'raw'          => 'TAP version 13'
                'as_string'    => 'TAP version 13',
               },
@@ -749,6 +789,7 @@ yourself.
                 'is_yaml'      => 0,
                 'has_skip'     => 0,
                 'has_todo'     => 0,
+                'severity'     => 0,
                 'raw'          => '1..6'
                 'as_string'    => '1..6',
               },
@@ -767,6 +808,7 @@ yourself.
                 'has_skip'     => 0,
                 'has_todo'     => 0,
                 'number'       => '1',                   # <---
+                'severity'     => 1,
                 'type'         => 'test',
                 'raw'          => 'ok 1 - use Data::DPath;'
                 'as_string'    => 'ok 1 - use Data::DPath;',
@@ -831,6 +873,7 @@ yourself.
                 'type'         => 'test',
                 'description'  => '- KEYs + PARENT',
                 'directive'    => '',
+                'severity'     => 1,
                 'raw'          => 'ok 2 - KEYs + PARENT'
                 'as_string'    => 'ok 2 - KEYs + PARENT',
               },
@@ -1100,5 +1143,51 @@ structure looks like this:
 =head2 tests_run
 
 =head2 version
+
+=head1 ATTRIBUTES
+
+=head2 severity
+
+The C<severity> describes the combination of C<ok>/C<not ok> and
+C<todo>/C<skip> directives as one single numeric value.
+
+This allows to handle the otherwise I<nominal> values as I<ordinal>
+value, i.e., with a particular order.
+
+This order is explained as this:
+
+=over 4
+
+=item * 0 - represents the 'missing' severity.
+
+It is used for all things that are not a test or as fallback when the
+other attributes appear in illegal combinations (like saying both SKIP
+and TODO).
+
+=item * 1 - straight ok.
+
+=item * 2 - ok with a C<#TODO>
+
+That's slightly worse than a straight ok because of the directive
+
+=item * 3 - ok with a C<#SKIP>
+
+That's one step worse because the ok is not from actual test
+execution, as that's what skip means.
+
+=item * 4 - not_ok with a C<#TODO>
+
+That's worse as it represets a fail but it's a known issue.
+
+=item * 5 - straight not_ok.
+
+A straight fail as the worst real-world value.
+
+=item * 6 - forbidden combination of a not_ok with a C<#SKIP>.
+
+How can it fail when it was skipped? That's why it's even worse than
+worst.
+
+=back
 
 =cut
