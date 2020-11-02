@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - introduce 'severity' level to represent the combination of
+          ok/notok and todo/skip as one ordinal number.
 
 0.91      2020-06-30
         - === INCOMPATIBILITY WARNING ===
