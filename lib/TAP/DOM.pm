@@ -230,12 +230,12 @@ sub new {
                 $entry->{is_has} = 0 if $USEBITSETS;
 
                 # test info
-                foreach (qw(raw as_string )) {
+                foreach (qw(type raw as_string )) {
                         $entry->{$_} = $result->$_ unless $IGNORE{$_};
                 }
 
                 if ($result->is_test) {
-                        foreach (qw(type directive explanation number description )) {
+                        foreach (qw(directive explanation number description )) {
                                 $entry->{$_} = $result->$_ unless $IGNORE{$_};
                         }
                         foreach (qw(is_ok is_unplanned )) {
@@ -250,6 +250,9 @@ sub new {
                 # plan
                 if ($result->is_plan) {
                   $plan = $result->as_string;
+                  foreach (qw(directive explanation)) {
+                          $entry->{$_} = $result->$_ unless $IGNORE{$_};
+                  }
 
                   # save Dangling kv_data to plan entry. The situation
                   # that we already collected kv_data but haven't got
