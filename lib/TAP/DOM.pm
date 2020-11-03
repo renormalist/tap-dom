@@ -75,31 +75,32 @@ our %EXPORT_TAGS = (constants => [ qw( $IS_PLAN
 
 # TAP severity level definition:
 #
-#   |-----------+-------+----------+--------------+----------+------------+------------|
-#   | *is_test* | is_ok | has_todo | is_actual_ok | has_skip | *mnemonic* | *severity* |
-#   |-----------+-------+----------+--------------+----------+------------+------------|
-#   |         0 | undef |        0 |            0 |        0 | missing    |          0 |
-#   |-----------+-------+----------+--------------+----------+------------+------------|
-#   |         1 |     1 |        0 |            0 |        0 | ok         |          1 |
-#   |         1 |     1 |        1 |            1 |        0 | ok_todo    |          2 |
-#   |         1 |     1 |        0 |            0 |        1 | ok_skip    |          3 |
-#   |         1 |     1 |        1 |            0 |        0 | notok_todo |          4 |
-#   |         1 |     0 |        0 |            0 |        0 | notok      |          5 |
-#   |         1 |     0 |        0 |            0 |        1 | notok_skip |          6 |
-#   |-----------+-------+----------+--------------+----------+------------+------------|
-#   |         % |     % |        % |            % |        % | epic_fail  |          % |
-#   |-----------+-------+----------+--------------+----------+------------+------------|
+# |-----------+-----------+-------+----------+--------------+----------+------------+----------|
+# | *is_plan* | *is_test* | is_ok | has_todo | is_actual_ok | has_skip | *mnemonic* | *tapcon* |
+# |-----------+-----------+-------+----------+--------------+----------+------------+----------|
+# |         1 |         0 | undef |    undef |        undef |        1 | ok_skip    |        3 |
+# |-----------+-----------+-------+----------+--------------+----------+------------+----------|
+# |         0 |         1 |     1 |        0 |            0 |        0 | ok         |        1 |
+# |         0 |         1 |     1 |        1 |            1 |        0 | ok_todo    |        2 |
+# |         0 |         1 |     1 |        0 |            0 |        1 | ok_skip    |        3 |
+# |         0 |         1 |     1 |        1 |            0 |        0 | notok_todo |        4 |
+# |         0 |         1 |     0 |        0 |            0 |        0 | notok      |        5 |
+# |         0 |         1 |     0 |        0 |            0 |        1 | notok_skip |        6 |
+# |-----------+-----------+-------+----------+--------------+----------+------------+----------|
+# |           |           |       |          |              |          | missing    |        0 |
+# |-----------+-----------+-------+----------+--------------+----------+------------+----------|
 
 our $severity = {};
 #
-#      {is_test} {is_ok} {has_todo} {is_actual_ok} {has_skip}                    = $severity;
+#       {plan}{test} {ok} {todo} {actual_ok} {skip} = $severity;
 #
-$severity->  {1}     {1}        {0}            {0}        {0}                    = 1; # ok
-$severity->  {1}     {1}        {1}            {1}        {0}                    = 2; # ok_todo
-$severity->  {1}     {1}        {0}            {0}        {1}                    = 3; # ok_skip
-$severity->  {1}     {1}        {1}            {0}        {0}                    = 4; # notok_todo
-$severity->  {1}     {0}        {0}            {0}        {0}                    = 5; # notok
-$severity->  {1}     {0}        {0}            {0}        {1}                    = 6; # notok_skip
+$severity->{1}   {0} {''}    {0}         {0}    {1} = 3; # ok_skip
+$severity->{0}   {1}  {1}    {0}         {0}    {0} = 1; # ok
+$severity->{0}   {1}  {1}    {1}         {1}    {0} = 2; # ok_todo
+$severity->{0}   {1}  {1}    {0}         {0}    {1} = 3; # ok_skip
+$severity->{0}   {1}  {1}    {1}         {0}    {0} = 4; # notok_todo
+$severity->{0}   {1}  {0}    {0}         {0}    {0} = 5; # notok
+$severity->{0}   {1}  {0}    {0}         {0}    {1} = 6; # notok_skip
 
 our $obvious_tap_line = qr/(1\.\.|ok\s|not\s+ok\s|#|\s|tap\s+version|pragma|Bail out!)/i;
 
@@ -342,8 +343,10 @@ sub new {
                 }}
 
                 # calculate severity
-                if ($entry->{is_test}) {
+                if ($entry->{is_test} or $entry->{is_plan}) {
+                  no warnings 'uninitialized';
                   $entry->{severity} = $severity
+                    ->{$entry->{is_plan}}
                     ->{$entry->{is_test}}
                     ->{$entry->{is_ok}}
                     ->{$entry->{has_todo}}
