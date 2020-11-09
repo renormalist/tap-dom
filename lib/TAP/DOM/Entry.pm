@@ -107,4 +107,6 @@ accessors to all other entry fields.
 
 =head2 type
 
+=head2 severity
+
 =cut
