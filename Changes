@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.92      2020-11-09
         - introduce 'severity' level to represent the combination of
           ok/notok and todo/skip as one ordinal number.
         - more complete information in non-test lines (plan, pragma)
