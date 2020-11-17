@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - provide mnemonics table for severity
 
 0.92      2020-11-09
         - introduce 'severity' level to represent the combination of

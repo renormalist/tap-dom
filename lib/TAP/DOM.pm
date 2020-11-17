@@ -73,6 +73,17 @@ our %EXPORT_TAGS = (constants => [ qw( $IS_PLAN
                                        $HAS_TODO
                                     ) ] );
 
+our %mnemonic = (
+  severity => {
+    1 => 'ok',
+    2 => 'ok_todo',
+    3 => 'ok_skip',
+    4 => 'notok_todo',
+    5 => 'notok',
+    6 => 'notok_skip', # forbidden TAP semantic, should never happen
+  },
+);
+
 # TAP severity level definition:
 #
 # |--------+-------+----------+--------------+----------+------------+----------|
