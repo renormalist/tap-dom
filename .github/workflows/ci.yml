@@ -47,6 +47,11 @@ jobs:
       run: cat C:/Users/RUNNER~1/.cpanm/work/*/build.log
 
     - name: Regular tests
+      if: startsWith( matrix.runner, 'windows-' )
+      run: |
+        dzil test --no-author
+
+    - name: Release tests
+      if: ! startsWith( matrix.runner, 'windows-' )
       run: |
         dzil test --author --release
-
