@@ -52,6 +52,6 @@ jobs:
         dzil test --no-author
 
     - name: Release tests
-      if: ! startsWith( matrix.runner, 'windows-' )
+      if: ${{ ! startsWith( matrix.runner, 'windows-' ) }}
       run: |
         dzil test --author --release
