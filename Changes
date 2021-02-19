@@ -2,6 +2,7 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
         - provide mnemonics table for severity
+        - evaluate TAP::DOM-specific pragma +tapdom_error
 
 0.92      2020-11-09
         - introduce 'severity' level to represent the combination of
