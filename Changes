@@ -3,6 +3,8 @@ Revision history for {{$dist->name}}
 {{$NEXT}}
         - provide mnemonics table for severity
         - evaluate TAP::DOM-specific pragma +tapdom_error
+        - TAP::DOM::Archive allows filehandle as 'source'
+          (requires new dependency to Scalar::Util)
 
 0.92      2020-11-09
         - introduce 'severity' level to represent the combination of

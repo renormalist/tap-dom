@@ -48,6 +48,7 @@ sub _read_tap_from_archive
         require YAML::Tiny;
         require IO::String;
         require IO::Zlib;
+        require Scalar::Util;
 
         my $content;
         if ($args->{filecontent}) {
@@ -55,7 +56,10 @@ sub _read_tap_from_archive
         } else {
             $content = do {
                 local $/;
-                open my $F, '<', $args->{source} or die 'Can not read '.$args->{source};
+                my $F = Scalar::Util::openhandle($args->{source});
+                if (!defined $F) {
+                    open $F, '<', $args->{source} or die 'Can not read '.$args->{source};
+                }
                 <$F>
             };
         }
@@ -95,6 +99,7 @@ __END__
  # Create a DOM from TAP archive file
  use TAP::DOM::Archive;
  my $tapdom = TAP::DOM::Archive->new( source => $taparchive_filename );
+ my $tapdom = TAP::DOM::Archive->new( source => $taparchive_filehandle );
  print Dumper($tapdom);
 
 =head1 DESCRIPTION
