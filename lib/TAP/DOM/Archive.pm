@@ -69,7 +69,9 @@ sub _read_tap_from_archive
         my $TARZ         = IO::Zlib->new($TARSTR, "rb");
         my $tar          = Archive::Tar->new($TARZ);
 
-        my $meta         = YAML::Tiny::Load($tar->get_content("meta.yml"));
+        my ($meta_yml)   = grep { $tar->contains_file($_) } qw{meta.yml ./meta.yml};
+        my $meta         = YAML::Tiny::Load($tar->get_content($meta_yml));
+
         my @tap_sections = map {
             # try different variants of filenames that meta.yml gave us
             my $f1 = $_;                  # original name as-is
