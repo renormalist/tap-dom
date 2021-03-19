@@ -38,6 +38,7 @@ our @tap_dom_args = (qw(ignore
                         document_data_ignore
                         preprocess_ignorelines
                         preprocess_tap
+                        noempty_tap
                         lowercase_fieldnames
                         lowercase_fieldvalues
                         trim_fieldvalues
@@ -119,6 +120,8 @@ $severity->{test}     {0}        {0}            {0}        {1} = 6; # notok_skip
 
 our $obvious_tap_line = qr/(1\.\.|ok\s|not\s+ok\s|#|\s|tap\s+version|pragma|Bail out!)/i;
 
+our $noempty_tap = "+pragma tapdom_error\n# document was empty";
+
 use Class::XSAccessor
     chained     => 1,
     accessors   => [qw( plan
@@ -188,6 +191,15 @@ sub preprocess_tap {
     return %args
 }
 
+# Mark empty TAP with replacement lines
+sub noempty_tap {
+    my %args = @_;
+
+    $args{tap} = $noempty_tap if defined($args{tap}) and $args{tap} eq '';
+
+    return %args
+}
+
 sub new {
         # hash or hash ref
         my $class = shift;
@@ -203,6 +215,7 @@ sub new {
 
         %args = preprocess_ignorelines(%args) if $args{preprocess_ignorelines};
         %args = preprocess_tap(%args)         if $args{preprocess_tap};
+        %args = noempty_tap(%args)            if $args{noempty_tap};
 
         my %IGNORE      = map { $_ => 1 } @{$args{ignore}};
         my $IGNORELINES = $args{ignorelines};
@@ -225,6 +238,7 @@ sub new {
         delete $args{document_data_ignore};
         delete $args{preprocess_ignorelines};
         delete $args{preprocess_tap};
+        delete $args{noempty_tap};
         delete $args{lowercase_fieldnames};
         delete $args{lowercase_fieldvalues};
         delete $args{trim_fieldvalues};
@@ -1002,6 +1016,17 @@ not as obvious as it seems first. Just think of unindented YAML or
 indented YAML with strange multi-line spanning values at line starts,
 or the (non-standardized and unsupported) nested indented TAP. So be
 careful!
+
+=item * noempty_tap
+
+When a document is empty (which can also happen after preprocessing)
+then this option set to 1 triggers to put in some replacement line.
+
+ +pragma tapdom_error
+ # document was empty
+
+which in turn assigns it an error severity, so that these situations
+are no longer invisible.
 
 =back
 

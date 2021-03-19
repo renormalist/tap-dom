@@ -3,6 +3,9 @@ Revision history for {{$dist->name}}
 {{$NEXT}}
         - provide mnemonics table for severity
         - evaluate TAP::DOM-specific pragma +tapdom_error
+        - new option 'noempty_tap' to put in replacement lines with a
+          '+pragma tapdom_error' which can be better evaluated by its
+          'severity'
         - TAP::DOM::Archive allows filehandle as 'source'
           (requires new dependency to Scalar::Util)
 
