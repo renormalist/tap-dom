@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.93      2021-06-05
         - provide mnemonics table for severity
         - evaluate TAP::DOM-specific pragma +tapdom_error
         - new option 'noempty_tap' to put in replacement lines with a
