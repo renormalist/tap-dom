@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - fix test to work on windows
 
 0.93      2021-06-05
         - provide mnemonics table for severity
