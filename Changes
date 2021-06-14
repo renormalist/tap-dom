@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.93.1    2021-06-14
         - fix test to work on windows
 
 0.93      2021-06-05
