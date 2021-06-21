@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.93.2    2021-06-21
         - re-upload(?)
 
 0.93.1    2021-06-14
