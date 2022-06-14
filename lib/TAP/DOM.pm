@@ -195,7 +195,13 @@ sub preprocess_tap {
 sub noempty_tap {
     my %args = @_;
 
-    $args{tap} = $noempty_tap if defined($args{tap}) and $args{tap} eq '';
+    if (defined($args{tap}) and $args{tap} eq '') {
+      $args{tap} = $noempty_tap;
+    }
+    elsif (defined($args{source}) and -z $args{source}) {
+      $args{tap} = $noempty_tap;
+      delete $args{source};
+    }
 
     return %args
 }
