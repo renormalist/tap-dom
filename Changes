@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.95      2022-06-14
         - reuploads are my new hobby
 
 0.94      2022-06-14
