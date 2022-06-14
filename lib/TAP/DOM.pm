@@ -228,6 +228,7 @@ sub new {
         my $LOWERCASE_FIELDNAMES = $args{lowercase_fieldnames};
         my $LOWERCASE_FIELDVALUES = $args{lowercase_fieldvalues};
         my $TRIM_FIELDVALUES = $args{trim_fieldvalues};
+        my $NOEMPTY_TAP = $args{noempty_tap};
         delete $args{ignore};
         delete $args{ignorelines};
         delete $args{dontignorelines};
@@ -435,6 +436,7 @@ sub new {
           lowercase_fieldnames                 => $LOWERCASE_FIELDNAMES,
           lowercase_fieldvalues                => $LOWERCASE_FIELDVALUES,
           trim_fieldvalues                     => $TRIM_FIELDVALUES,
+          noempty_tap                          => $NOEMPTY_TAP,
          );
 
         my $document_data = TAP::DOM::DocumentData->new(%document_data);
