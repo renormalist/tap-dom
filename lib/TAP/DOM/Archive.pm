@@ -27,7 +27,7 @@ sub new {
             }
         }
 
-        my $tap_documents = _read_tap_from_archive(\%args);
+        my $tap_documents = _read_tap_from_archive(\%args, \%tap_dom_args);
 
         my $tap_dom_list  = {
             meta => $tap_documents->{meta},
@@ -42,7 +42,7 @@ sub new {
 
 sub _read_tap_from_archive
 {
-        my ($args) = @_;
+        my ($args, $tap_dom_args) = @_;
 
         require Archive::Tar;
         require YAML::Tiny;
@@ -53,6 +53,20 @@ sub _read_tap_from_archive
         my $content;
         if ($args->{filecontent}) {
             $content = $args->{filecontent};
+        } elsif (-z $args->{source} and $tap_dom_args->{noempty_tap}) {
+            return ({
+              meta => {
+                file_order => [ 't/error-tap-archive-was-empty.t' ],
+                file_attributes => [{
+                  start_time  => '1.0',
+                  end_time    => '2.0',
+                  description => 't/error-tap-archive-was-empty.t'
+                }],
+                'start_time' => '1',
+                'stop_time'  => '2',
+              },
+              tap => [ $TAP::DOM::noempty_tap ],
+            });
         } else {
             $content = do {
                 local $/;
