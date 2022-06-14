@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - reuploads are my new hobby
 
 0.94      2022-06-14
         - tweak handling of empty TAP(::Archive) documents, so far only
