@@ -120,7 +120,7 @@ $severity->{test}     {0}        {0}            {0}        {1} = 6; # notok_skip
 
 our $obvious_tap_line = qr/(1\.\.|ok\s|not\s+ok\s|#|\s|tap\s+version|pragma|Bail out!)/i;
 
-our $noempty_tap = "+pragma tapdom_error\n# document was empty";
+our $noempty_tap = "pragma +tapdom_error\n# document was empty";
 
 use Class::XSAccessor
     chained     => 1,
@@ -1030,7 +1030,7 @@ careful!
 When a document is empty (which can also happen after preprocessing)
 then this option set to 1 triggers to put in some replacement line.
 
- +pragma tapdom_error
+ pragma +tapdom_error
  # document was empty
 
 which in turn assigns it an error severity, so that these situations

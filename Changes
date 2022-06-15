@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - fix replacement tap pragma line for 'noempty_tap' situation
 
 0.96      2022-06-15
         - avoid accidental Perl 5.10+ idiom
