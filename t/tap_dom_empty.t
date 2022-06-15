@@ -27,6 +27,6 @@ is ($tapdom->{lines}[$_]{raw},
 
 # without 'noempty_tap'
 $tapdom = TAP::DOM->new (source => $source);
-is (@{$tapdom->{lines}//[]},          0, "without noempty_tap - count tap lines");
+is (@{$tapdom->{lines}||[]},          0, "without noempty_tap - count tap lines");
 
 done_testing();
