@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.96      2022-06-15
         - avoid accidental Perl 5.10+ idiom
 
 0.95      2022-06-14
