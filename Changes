@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.97      2022-06-15
         - fix replacement tap pragma line for 'noempty_tap' situation
 
 0.96      2022-06-15
