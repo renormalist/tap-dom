@@ -253,9 +253,9 @@ sub new {
         my $document_data_regex = qr/^#\s*$DOC_DATA_PREFIX([^:]+)\s*:\s*(.*)$/;
         my $document_data_ignore = defined($DOC_DATA_IGNORE) ? qr/$DOC_DATA_IGNORE/ : undef;
 
-        my $parser = new TAP::Parser( { %args } );
+        my $parser = TAP::Parser->new( { %args } );
 
-        my $aggregate = new TAP::Parser::Aggregator;
+        my $aggregate = TAP::Parser::Aggregator->new;
         $aggregate->start;
 
         while ( my $result = $parser->next ) {
