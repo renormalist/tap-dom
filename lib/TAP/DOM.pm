@@ -396,7 +396,10 @@ sub new {
                   no warnings 'uninitialized';
                   if ($entry->{raw} =~ /^pragma\s+\+tapdom_error\s*$/) {
                     $found_pragma_tapdom_error=1;
-                    $entry->{severity} = 5;
+                    $entry->{severity}   = 5;
+                    $entry->{is_unknown} = 0;
+                    $entry->{is_pragma}  = 1;
+                    $entry->{type}       = 'pragma';
                   } else {
                     $entry->{severity} = 0;
                   }
