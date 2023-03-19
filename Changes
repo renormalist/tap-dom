@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.98      2023-03-19
         - extend 'noempty_tap' logic to "not empty but no tap lines"
           (not relevant when 'preprocess_tap' is set)
         - distro hygiene
