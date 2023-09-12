@@ -39,6 +39,7 @@ our @tap_dom_args = (qw(ignore
                         preprocess_ignorelines
                         preprocess_tap
                         noempty_tap
+                        utf8
                         lowercase_fieldnames
                         lowercase_fieldvalues
                         trim_fieldvalues
@@ -206,6 +207,42 @@ sub noempty_tap {
     return %args
 }
 
+# Assume TAP is UTF-8 and filter out forbidden characters.
+#
+# Convert illegal chars into Unicode 'REPLACEMENT CHARACTER'
+# (\N{U+FFFD} ... i.e. diamond with question mark in it).
+# For more info see:
+#  - https://stackoverflow.com/a/2656433/1342345
+#  - https://metacpan.org/pod/Encode#FB_DEFAULT
+#  - https://en.wikipedia.org/wiki/Specials_(Unicode_block)#Replacement_character
+#
+# Additionall convert \0 as it's not covered by Encode::decode()
+# but is still illegal for some tools.
+sub utf8_tap {
+    my %args = @_;
+
+    if ($args{source}) {
+      local $/;
+      my $F;
+      if (ref($args{source}) eq 'GLOB') {
+        $F = $args{source};
+      } else {
+        open $F, '<', $args{source};
+      }
+      $args{tap} = <$F>;
+      close $F;
+      delete $args{source};
+    }
+
+    if ($args{tap}) {
+      require Encode;
+      $args{tap} = Encode::decode('UTF-8', $args{tap});
+      $args{tap} =~ s/\0/\N{U+FFFD}/g;
+      delete $args{utf8}; # don't try it again during parsing later
+    }
+    return %args
+}
+
 sub new {
         # hash or hash ref
         my $class = shift;
@@ -222,6 +259,7 @@ sub new {
         %args = preprocess_ignorelines(%args) if $args{preprocess_ignorelines};
         %args = preprocess_tap(%args)         if $args{preprocess_tap};
         %args = noempty_tap(%args)            if $args{noempty_tap};
+        %args = utf8_tap(%args)               if $args{utf8};
 
         my %IGNORE      = map { $_ => 1 } @{$args{ignore}};
         my $IGNORELINES = $args{ignorelines};
@@ -246,6 +284,7 @@ sub new {
         delete $args{preprocess_ignorelines};
         delete $args{preprocess_tap};
         delete $args{noempty_tap};
+        delete $args{utf8};
         delete $args{lowercase_fieldnames};
         delete $args{lowercase_fieldvalues};
         delete $args{trim_fieldvalues};
@@ -1094,6 +1133,13 @@ then this option set to 1 triggers to put in some replacement line.
 
 which in turn assigns it an error severity, so that these situations
 are no longer invisible.
+
+=item * utf8
+
+Declare a document is UTF-8 encoded Unicode.
+
+This triggers decoding the document accordingly, inclusive filtering
+out illegal Unicode characters.
 
 =back
 
