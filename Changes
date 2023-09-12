@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - new option 'utf8' to interpret TAP source and potentially
+          filter out illegal UTF-8 characters and the binary \0
 
 0.98      2023-03-19
         - extend 'noempty_tap' logic to "not empty but no tap lines"
