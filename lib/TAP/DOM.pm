@@ -211,7 +211,9 @@ sub noempty_tap {
 #
 # Convert illegal chars into Unicode 'REPLACEMENT CHARACTER'
 # (\N{U+FFFD} ... i.e. diamond with question mark in it).
+#
 # For more info see:
+#
 #  - https://stackoverflow.com/a/2656433/1342345
 #  - https://metacpan.org/pod/Encode#FB_DEFAULT
 #  - https://en.wikipedia.org/wiki/Specials_(Unicode_block)#Replacement_character
@@ -1141,6 +1143,24 @@ Declare a document is UTF-8 encoded Unicode.
 This triggers decoding the document accordingly, inclusive filtering
 out illegal Unicode characters.
 
+In particular it converts illegal chars into Unicode I<REPLACEMENT
+CHARACTER> (C<\N{U+FFFD}> ... i.e. diamond with question mark in it).
+
+For more info see:
+
+=over 4
+
+=item * https://stackoverflow.com/a/2656433/1342345
+
+=item * https://metacpan.org/pod/Encode#FB_DEFAULT
+
+=item * https://en.wikipedia.org/wiki/Specials_(Unicode_block)#Replacement_character
+
+=back
+
+Additionall convert C<\0> as it's not covered by Encode::decode() but
+is still illegal for some tools.
+
 =back
 
 =head1 USING BITSETS
@@ -1252,7 +1272,7 @@ Summary: for consistency it is suggested to set both options:
  disable_global_kv_data => 1,
  put_dangling_kv_data_under_lazy_plan => 1
 
-=head1 ACCESSORS
+=head1 ACCESSORS AND UTILITY METHODS
 
 =head2 end_time
 
@@ -1277,6 +1297,10 @@ Summary: for consistency it is suggested to set both options:
 =head2 summary
 
 =head2 tapdom_config
+
+=head2 utf8_tap
+
+The actual worker function behind C<utf8> option.
 
 =head2 document_data
 
