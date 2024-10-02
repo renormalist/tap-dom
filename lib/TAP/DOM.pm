@@ -31,6 +31,7 @@ our $HAS_TODO     = 4096;
 our @tap_dom_args = (qw(ignore
                         ignorelines
                         dontignorelines
+                        ignoreunknown
                         usebitsets
                         disable_global_kv_data
                         put_dangling_kv_data_under_lazy_plan
@@ -266,6 +267,7 @@ sub new {
         my %IGNORE      = map { $_ => 1 } @{$args{ignore}};
         my $IGNORELINES = $args{ignorelines};
         my $DONTIGNORELINES = $args{dontignorelines};
+        my $IGNOREUNKNOWN = $args{ignoreunknown};
         my $USEBITSETS  = $args{usebitsets};
         my $DISABLE_GLOBAL_KV_DATA  = $args{disable_global_kv_data};
         my $PUT_DANGLING_KV_DATA_UNDER_LAZY_PLAN  = $args{put_dangling_kv_data_under_lazy_plan};
@@ -278,6 +280,7 @@ sub new {
         delete $args{ignore};
         delete $args{ignorelines};
         delete $args{dontignorelines};
+        delete $args{ignoreunknown};
         delete $args{usebitsets};
         delete $args{disable_global_kv_data};
         delete $args{put_dangling_kv_data_under_lazy_plan};
@@ -305,6 +308,7 @@ sub new {
                 no strict 'refs';
 
                 next if $IGNORELINES && $result->raw =~ m/$IGNORELINES/ && !($DONTIGNORELINES && $result->raw =~ m/$DONTIGNORELINES/);
+                next if $IGNOREUNKNOWN and $result->is_unknown;
 
                 my $entry = TAP::DOM::Entry->new;
                 $entry->{is_has} = 0 if $USEBITSETS;
@@ -686,6 +690,7 @@ and returns a big data structure containing the extracted results.
    put_dangling_kv_data_under_lazy_plan => 1,
    ignorelines                          => '(## |# Test-mymeta_)',
    dontignorelines                      => '# Test-mymeta_(tool1|tool2)_',
+   ignoreunknown                        => 1,
    preprocess_ignorelines               => 1,
    preprocess_tap                       => 1,
    usebitsets                           => 0,
@@ -749,6 +754,17 @@ zero-width negative-lookaround conditions
 use Perl version
 
 =back
+
+=item ignoreunknown
+
+By default non-TAP lines are still part of the TAP::DOM (with
+C<is_unknown=1> and most other entry fields set to C<undef>).
+
+If you mix a lot of non-TAP lines with actual TAP lines then
+this can lead to a huge TAP::DOM data structure.
+
+With this option set to 1 the C<unknown> lines are skipped.
+
 
 =item usebitsets
 
