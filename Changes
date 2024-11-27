@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.000     2024-11-27
         - declare stable 1.0 release
         - no functional differences
 
