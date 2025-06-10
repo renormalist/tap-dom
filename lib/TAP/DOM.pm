@@ -33,6 +33,7 @@ our @tap_dom_args = (qw(ignore
                         dontignorelines
                         ignoreunknown
                         usebitsets
+                        sparse
                         disable_global_kv_data
                         put_dangling_kv_data_under_lazy_plan
                         document_data_prefix
@@ -112,7 +113,7 @@ our $severity = {};
 #
 #          {type} {is_ok} {has_todo} {is_actual_ok} {has_skip} = $severity;
 #
-$severity->{plan}    {''}        {0}            {0}        {1} = 3; # ok_skip
+$severity->{plan}     {0}        {0}            {0}        {1} = 3; # ok_skip
 $severity->{test}     {1}        {0}            {0}        {0} = 1; # ok
 $severity->{test}     {1}        {1}            {1}        {0} = 2; # ok_todo
 $severity->{test}     {1}        {0}            {0}        {1} = 3; # ok_skip
@@ -269,6 +270,7 @@ sub new {
         my $DONTIGNORELINES = $args{dontignorelines};
         my $IGNOREUNKNOWN = $args{ignoreunknown};
         my $USEBITSETS  = $args{usebitsets};
+        my $SPARSE  = $args{sparse};
         my $DISABLE_GLOBAL_KV_DATA  = $args{disable_global_kv_data};
         my $PUT_DANGLING_KV_DATA_UNDER_LAZY_PLAN  = $args{put_dangling_kv_data_under_lazy_plan};
         my $DOC_DATA_PREFIX = $args{document_data_prefix} || 'Test-';
@@ -282,6 +284,7 @@ sub new {
         delete $args{dontignorelines};
         delete $args{ignoreunknown};
         delete $args{usebitsets};
+        delete $args{sparse};
         delete $args{disable_global_kv_data};
         delete $args{put_dangling_kv_data_under_lazy_plan};
         delete $args{document_data_prefix};
@@ -325,6 +328,9 @@ sub new {
                         foreach (qw(is_ok is_unplanned )) {
                                 if ($USEBITSETS) {
                                         $entry->{is_has} |= $result->$_ ? ${uc $_} : 0 unless $IGNORE{$_};
+                                } elsif ($SPARSE) {
+                                        # don't set 'false' fields at all in sparse mode
+                                        $entry->{$_} = 1 if $result->$_ and not $IGNORE{$_};
                                 } else {
                                         $entry->{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
                                 }
@@ -351,6 +357,9 @@ sub new {
                 foreach ((qw(has_skip has_todo))) {
                         if ($USEBITSETS) {
                                 $entry->{is_has} |= $result->$_ ? ${uc $_} : 0 unless $IGNORE{$_};
+                        } elsif ($SPARSE) {
+                                # don't set 'false' fields at all in sparse mode
+                                $entry->{$_} = 1 if $result->$_ and not $IGNORE{$_};
                         } else {
                                 $entry->{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
                         }
@@ -364,6 +373,9 @@ sub new {
                 {
                         if ($USEBITSETS) {
                                 $entry->{is_has} |= $result->$_ ? ${uc $_} : 0 unless $IGNORE{$_};
+                        } elsif ($SPARSE) {
+                                # don't set 'false' fields at all in sparse mode
+                                $entry->{$_} = 1 if $result->$_ and not $IGNORE{$_};
                         } else {
                                 $entry->{$_} = $result->$_ ? 1 : 0 unless $IGNORE{$_};
                         }
@@ -383,6 +395,9 @@ sub new {
                         my $is_actual_ok = ($result->has_todo && $result->is_actual_ok) ? 1 : 0;
                         if ($USEBITSETS) {
                                 $entry->{is_has} |= $is_actual_ok ? $IS_ACTUAL_OK : 0;
+                        } elsif ($SPARSE) {
+                                # don't set 'false' fields at all in sparse mode
+                                $entry->{is_actual_ok} = 1 if $is_actual_ok;
                         } else {
                                 $entry->{is_actual_ok} = $is_actual_ok;
                         }
@@ -431,10 +446,10 @@ sub new {
                   $count_tap_lines++;
                   $entry->{severity} = $severity
                     ->{$entry->{type}}
-                    ->{$entry->{is_ok}}
-                    ->{$entry->{has_todo}}
-                    ->{$entry->{is_actual_ok}}
-                    ->{$entry->{has_skip}};
+                    ->{$entry->{is_ok}||0}
+                    ->{$entry->{has_todo}||0}
+                    ->{$entry->{is_actual_ok}||0}
+                    ->{$entry->{has_skip}||0};
                 }
 
                 if ($entry->{is_pragma} or $entry->{is_unknown}) {
@@ -442,9 +457,9 @@ sub new {
                   if ($entry->{raw} =~ /^pragma\s+\+tapdom_error\s*$/) {
                     $found_pragma_tapdom_error=1;
                     $entry->{severity}   = 5;
-                    $entry->{is_unknown} = 0;
                     $entry->{is_pragma}  = 1;
                     $entry->{type}       = 'pragma';
+                    delete $entry->{is_unknown};
                   } else {
                     $entry->{severity} = 0;
                   }
@@ -466,41 +481,45 @@ sub new {
         if (!$count_tap_lines and !$found_pragma_tapdom_error and $NOEMPTY_TAP) {
           # pragma +tapdom_error
           my $error_entry = TAP::DOM::Entry->new(
-            'is_version'   => 0,
-            'is_plan'      => 0,
-            'is_test'      => 0,
-            'is_comment'   => 0,
-            'is_yaml'      => 0,
-            'is_unknown'   => 0,
-            'is_bailout'   => 0,
-            'is_actual_ok' => 0,
+            ($SPARSE ? () : (
+              'is_version'   => 0,
+              'is_plan'      => 0,
+              'is_test'      => 0,
+              'is_comment'   => 0,
+              'is_yaml'      => 0,
+              'is_unknown'   => 0,
+              'is_bailout'   => 0,
+              'is_actual_ok' => 0,
+              'has_todo'     => 0,
+              'has_skip'     => 0,
+            )),
             'is_pragma'    => 1,
             'type'         => 'pragma',
             'raw'          => 'pragma +tapdom_error',
             'as_string'    => 'pragma +tapdom_error',
             'severity'     => 5,
-            'has_todo'     => 0,
-            'has_skip'     => 0,
           );
           $error_entry->{is_has} = $IS_PRAGMA if $USEBITSETS;
           foreach (qw(raw type as_string explanation)) { delete $error_entry->{$_} if $IGNORE{$_} }
           # pragma +tapdom_error
           my $error_comment = TAP::DOM::Entry->new(
-            'is_version'   => 0,
-            'is_plan'      => 0,
-            'is_test'      => 0,
+            ($SPARSE ? () : (
+              'is_version'   => 0,
+              'is_plan'      => 0,
+              'is_test'      => 0,
+              'is_yaml'      => 0,
+              'is_unknown'   => 0,
+              'is_bailout'   => 0,
+              'is_actual_ok' => 0,
+              'is_pragma'    => 0,
+              'has_todo'     => 0,
+              'has_skip'     => 0,
+            )),
             'is_comment'   => 1,
-            'is_yaml'      => 0,
-            'is_unknown'   => 0,
-            'is_bailout'   => 0,
-            'is_actual_ok' => 0,
-            'is_pragma'    => 0,
             'type'         => 'comment',
             'raw'          => '# no tap lines',
             'as_string'    => '# no tap lines',
             'severity'     => 0,
-            'has_todo'     => 0,
-            'has_skip'     => 0,
           );
           $error_comment->{is_has} = $IS_COMMENT if $USEBITSETS;
           foreach (qw(raw type as_string explanation)) { delete $error_comment->{$_} if $IGNORE{$_} }
@@ -539,6 +558,7 @@ sub new {
           ignorelines                          => $IGNORELINES,
           dontignorelines                      => $DONTIGNORELINES,
           usebitsets                           => $USEBITSETS,
+          sparse                               => $SPARSE,
           disable_global_kv_data               => $DISABLE_GLOBAL_KV_DATA,
           put_dangling_kv_data_under_lazy_plan => $PUT_DANGLING_KV_DATA_UNDER_LAZY_PLAN,
           document_data_prefix                 => $DOC_DATA_PREFIX,
@@ -694,6 +714,7 @@ and returns a big data structure containing the extracted results.
    preprocess_ignorelines               => 1,
    preprocess_tap                       => 1,
    usebitsets                           => 0,
+   sparse                               => 0,
    ignore                               => ['as_string'], # keep 'raw' which is the unmodified variant
    document_data_prefix                 => '(MyApp|Test)-',
    lowercase_fieldnames                 => 1,
@@ -781,6 +802,87 @@ This field must be evaluated later with bit-comparison operators.
 
 Originally meant as memory-saving mechanism it turned out not to be
 worth the hazzle.
+
+=item sparse
+
+Only set boolean fields if they are a true value. This results in a
+much more condensed data structure but also means you can't check on
+value C<0> but the absence of value C<1>.
+
+The option has no effect when C<usebitsets> is used.
+
+With the C<spare> option the actual line entries get restricted to
+only actually true values like this:
+
+  # ... (the initial part is same as above in chapter "STRUCTURE")
+  'lines' => [
+              {
+               'is_version'   => 1,
+               'severity'     => 0,
+               'raw'          => 'TAP version 13'
+               'as_string'    => 'TAP version 13',
+              },
+              {
+                'is_plan'      => 1,
+                'severity'     => 0,
+                'raw'          => '1..6'
+                'as_string'    => '1..6',
+              },
+              {
+                'is_ok'        => 1,
+                'is_test'      => 1,
+                'number'       => '1',
+                'severity'     => 1,
+                'type'         => 'test',
+                'raw'          => 'ok 1 - use Data::DPath;'
+                'as_string'    => 'ok 1 - use Data::DPath;',
+                'normalized'   => 'ok use Data::DPath;',
+                'description'  => '- use Data::DPath;',
+                'directive'    => '',
+                'explanation'  => '',
+                '_children'    => [
+                                   # ----- children are the subsequent comment/yaml lines -----
+                                   {
+                                     'is_yaml'      => 1,
+                                     'raw'          => '   ---
+     - name: \'Hash one\'
+       value: 1
+     - name: \'Hash two\'
+       value: 2
+   ...'
+                                     'as_string'    => '   ---
+     - name: \'Hash one\'
+       value: 1
+     - name: \'Hash two\'
+       value: 2
+   ...',
+                                     'data'         => [
+                                                        {
+                                                          'value' => '1',
+                                                          'name' => 'Hash one'
+                                                        },
+                                                        {
+                                                          'value' => '2',
+                                                          'name' => 'Hash two'
+                                                        }
+                                                       ],
+                                 }
+                               ],
+              },
+              {
+                'is_ok'        => 1,
+                'is_test'      => 1,
+                'explanation'  => '',
+                'number'       => '2',
+                'type'         => 'test',
+                'description'  => '- KEYs + PARENT',
+                'directive'    => '',
+                'severity'     => 1,
+                'raw'          => 'ok 2 - KEYs + PARENT'
+                'as_string'    => 'ok 2 - KEYs + PARENT',
+              },
+              # etc., see the rest in t/some_tap.dom ...
+             ],
 
 =item disable_global_kv_data
 

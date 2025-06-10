@@ -11,6 +11,7 @@ use Class::XSAccessor
     accessors   => [qw( ignore
                         ignorelines
                         usebitsets
+                        sparse
                      )];
 
 1;
@@ -30,5 +31,7 @@ The C<tapdom_config> part covers TAP::DOM specific parse options.
 =head2 ignorelines
 
 =head2 usebitsets
+
+=head2 sparse
 
 =cut
