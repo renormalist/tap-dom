@@ -689,6 +689,202 @@ exploration tools", like L<Data::DPath|Data::DPath>.
 ``Reliable'' means that this structure is kind of an API that will not
 change, so your data tools can, well, rely on it.
 
+=head1 STRUCTURE
+
+The data structure is basically a nested hash/array structure with
+keys named after the functions of TAP::Parser that you normally would
+use to extract results.
+
+See the TAP example file in C<t/some_tap.txt> and its corresponding
+result structure in C<t/some_tap.dom>.
+
+Here is a slightly commented and beautified excerpt of
+C<t/some_tap.dom>. Due to it's beeing manually washed for readability
+there might be errors in it, so for final reference, dump a DOM by
+yourself.
+
+ bless( {
+  # general TAP stats:
+  'version'       => 13,
+  'plan'          => '1..6',
+  'tests_planned' => 6
+  'tests_run'     => 8,
+  'is_good_plan'  => 0,
+  'has_problems'  => 2,
+  'skip_all'      => undef,
+  'parse_errors'  => 1,
+  'parse_errors_msgs'  => [
+                      'Bad plan.  You planned 6 tests but ran 8.'
+                     ],
+  'pragmas'       => [
+                      'strict'
+                     ],
+  'exit'          => 0,
+  'start_time'    => '1236463400.25151',
+  'end_time'      => '1236463400.25468',
+  # the used TAP::DOM specific options to TAP::DOM->new():
+  'tapdom_config' => {
+                      'ignorelines' => qr/(?-xism:^## )/,
+                      'usebitsets' => undef,
+                      'ignore' => {}
+                     },
+  # summary according to TAP::Parser::Aggregator:
+  'summary' => {
+                 'status'          => 'FAIL',
+                 'total'           => 8,
+                 'passed'          => 6,
+                 'failed'          => 2,
+                 'all_passed'      => 0,
+                 'skipped'         => 1,
+                 'todo'            => 4,
+                 'todo_passed'     => 2,
+                 'parse_errors'    => 1,
+                 'has_errors'      => 1,
+                 'has_problems'    => 1,
+                 'exit'            => 0,
+                 'wait'            => 0
+                 'elapsed'         => bless( [
+                                              0,
+                                              '0',
+                                              0,
+                                              0,
+                                              0,
+                                              0
+                                             ], 'Benchmark' ),
+                 'elapsed_timestr' => ' 0 wallclock secs ( 0.00 usr +  0.00 sys =  0.00 CPU)',
+               },
+  # all recognized TAP lines:
+  'lines' => [
+              {
+               'is_actual_ok' => 0,
+               'is_bailout'   => 0,
+               'is_comment'   => 0,
+               'is_plan'      => 0,
+               'is_pragma'    => 0,
+               'is_test'      => 0,
+               'is_unknown'   => 0,
+               'is_version'   => 1,                      # <---
+               'is_yaml'      => 0,
+               'has_skip'     => 0,
+               'has_todo'     => 0,
+               'severity'     => 0,
+               'raw'          => 'TAP version 13'
+               'as_string'    => 'TAP version 13',
+              },
+              {
+                'is_actual_ok' => 0,
+                'is_bailout'   => 0,
+                'is_comment'   => 0,
+                'is_plan'      => 1,                     # <---
+                'is_pragma'    => 0,
+                'is_test'      => 0,
+                'is_unknown'   => 0,
+                'is_version'   => 0,
+                'is_yaml'      => 0,
+                'has_skip'     => 0,
+                'has_todo'     => 0,
+                'severity'     => 0,
+                'raw'          => '1..6'
+                'as_string'    => '1..6',
+              },
+              {
+                'is_actual_ok' => 0,
+                'is_bailout'   => 0,
+                'is_comment'   => 0,
+                'is_ok'        => 1,                     # <---
+                'is_plan'      => 0,
+                'is_pragma'    => 0,
+                'is_test'      => 1,                     # <---
+                'is_unknown'   => 0,
+                'is_unplanned' => 0,
+                'is_version'   => 0,
+                'is_yaml'      => 0,
+                'has_skip'     => 0,
+                'has_todo'     => 0,
+                'number'       => '1',                   # <---
+                'severity'     => 1,
+                'type'         => 'test',
+                'raw'          => 'ok 1 - use Data::DPath;'
+                'as_string'    => 'ok 1 - use Data::DPath;',
+                'description'  => '- use Data::DPath;',
+                'directive'    => '',
+                'explanation'  => '',
+                '_children'    => [
+                                   # ----- children are the subsequent comment/yaml lines -----
+                                   {
+                                     'is_actual_ok' => 0,
+                                     'is_unknown'   => 0,
+                                     'has_todo'     => 0,
+                                     'is_bailout'   => 0,
+                                     'is_pragma'    => 0,
+                                     'is_version'   => 0,
+                                     'is_comment'   => 0,
+                                     'has_skip'     => 0,
+                                     'is_test'      => 0,
+                                     'is_yaml'      => 1,              # <---
+                                     'is_plan'      => 0,
+                                     'raw'          => '   ---
+     - name: \'Hash one\'
+       value: 1
+     - name: \'Hash two\'
+       value: 2
+   ...'
+                                     'as_string'    => '   ---
+     - name: \'Hash one\'
+       value: 1
+     - name: \'Hash two\'
+       value: 2
+   ...',
+                                     'data'         => [
+                                                        {
+                                                          'value' => '1',
+                                                          'name' => 'Hash one'
+                                                        },
+                                                        {
+                                                          'value' => '2',
+                                                          'name' => 'Hash two'
+                                                        }
+                                                       ],
+                                 }
+                               ],
+              },
+              {
+                'is_actual_ok' => 0,
+                'is_bailout'   => 0,
+                'is_comment'   => 0,
+                'is_ok'        => 1,                     # <---
+                'is_plan'      => 0,
+                'is_pragma'    => 0,
+                'is_test'      => 1,                     # <---
+                'is_unknown'   => 0,
+                'is_unplanned' => 0,
+                'is_version'   => 0,
+                'is_yaml'      => 0,
+                'has_skip'     => 0,
+                'has_todo'     => 0,
+                'explanation'  => '',
+                'number'       => '2',                   # <---
+                'type'         => 'test',
+                'description'  => '- KEYs + PARENT',
+                'directive'    => '',
+                'severity'     => 1,
+                'raw'          => 'ok 2 - KEYs + PARENT'
+                'as_string'    => 'ok 2 - KEYs + PARENT',
+              },
+              # etc., see the rest in t/some_tap.dom ...
+             ],
+ }, 'TAP::DOM')                                          # blessed
+
+
+=head1 NESTED LINES
+
+As you can see above, diagnostic lines (comment or yaml) are nested
+into the line before under a key C<_children> which simply contains an
+array of those comment/yaml line elements.
+
+With this you can recognize where the diagnostic lines semantically
+belong.
+
 =head1 METHODS
 
 =head2 new
@@ -958,202 +1154,6 @@ But there are more, see L<TAP::Parser|TAP::Parser>.
 =head2 to_tap
 
 Called on a TAP::DOM object it returns a string that is TAP.
-
-=head1 STRUCTURE
-
-The data structure is basically a nested hash/array structure with
-keys named after the functions of TAP::Parser that you normally would
-use to extract results.
-
-See the TAP example file in C<t/some_tap.txt> and its corresponding
-result structure in C<t/some_tap.dom>.
-
-Here is a slightly commented and beautified excerpt of
-C<t/some_tap.dom>. Due to it's beeing manually washed for readability
-there might be errors in it, so for final reference, dump a DOM by
-yourself.
-
- bless( {
-  # general TAP stats:
-  'version'       => 13,
-  'plan'          => '1..6',
-  'tests_planned' => 6
-  'tests_run'     => 8,
-  'is_good_plan'  => 0,
-  'has_problems'  => 2,
-  'skip_all'      => undef,
-  'parse_errors'  => 1,
-  'parse_errors_msgs'  => [
-                      'Bad plan.  You planned 6 tests but ran 8.'
-                     ],
-  'pragmas'       => [
-                      'strict'
-                     ],
-  'exit'          => 0,
-  'start_time'    => '1236463400.25151',
-  'end_time'      => '1236463400.25468',
-  # the used TAP::DOM specific options to TAP::DOM->new():
-  'tapdom_config' => {
-                      'ignorelines' => qr/(?-xism:^## )/,
-                      'usebitsets' => undef,
-                      'ignore' => {}
-                     },
-  # summary according to TAP::Parser::Aggregator:
-  'summary' => {
-                 'status'          => 'FAIL',
-                 'total'           => 8,
-                 'passed'          => 6,
-                 'failed'          => 2,
-                 'all_passed'      => 0,
-                 'skipped'         => 1,
-                 'todo'            => 4,
-                 'todo_passed'     => 2,
-                 'parse_errors'    => 1,
-                 'has_errors'      => 1,
-                 'has_problems'    => 1,
-                 'exit'            => 0,
-                 'wait'            => 0
-                 'elapsed'         => bless( [
-                                              0,
-                                              '0',
-                                              0,
-                                              0,
-                                              0,
-                                              0
-                                             ], 'Benchmark' ),
-                 'elapsed_timestr' => ' 0 wallclock secs ( 0.00 usr +  0.00 sys =  0.00 CPU)',
-               },
-  # all recognized TAP lines:
-  'lines' => [
-              {
-               'is_actual_ok' => 0,
-               'is_bailout'   => 0,
-               'is_comment'   => 0,
-               'is_plan'      => 0,
-               'is_pragma'    => 0,
-               'is_test'      => 0,
-               'is_unknown'   => 0,
-               'is_version'   => 1,                      # <---
-               'is_yaml'      => 0,
-               'has_skip'     => 0,
-               'has_todo'     => 0,
-               'severity'     => 0,
-               'raw'          => 'TAP version 13'
-               'as_string'    => 'TAP version 13',
-              },
-              {
-                'is_actual_ok' => 0,
-                'is_bailout'   => 0,
-                'is_comment'   => 0,
-                'is_plan'      => 1,                     # <---
-                'is_pragma'    => 0,
-                'is_test'      => 0,
-                'is_unknown'   => 0,
-                'is_version'   => 0,
-                'is_yaml'      => 0,
-                'has_skip'     => 0,
-                'has_todo'     => 0,
-                'severity'     => 0,
-                'raw'          => '1..6'
-                'as_string'    => '1..6',
-              },
-              {
-                'is_actual_ok' => 0,
-                'is_bailout'   => 0,
-                'is_comment'   => 0,
-                'is_ok'        => 1,                     # <---
-                'is_plan'      => 0,
-                'is_pragma'    => 0,
-                'is_test'      => 1,                     # <---
-                'is_unknown'   => 0,
-                'is_unplanned' => 0,
-                'is_version'   => 0,
-                'is_yaml'      => 0,
-                'has_skip'     => 0,
-                'has_todo'     => 0,
-                'number'       => '1',                   # <---
-                'severity'     => 1,
-                'type'         => 'test',
-                'raw'          => 'ok 1 - use Data::DPath;'
-                'as_string'    => 'ok 1 - use Data::DPath;',
-                'description'  => '- use Data::DPath;',
-                'directive'    => '',
-                'explanation'  => '',
-                '_children'    => [
-                                   # ----- children are the subsequent comment/yaml lines -----
-                                   {
-                                     'is_actual_ok' => 0,
-                                     'is_unknown'   => 0,
-                                     'has_todo'     => 0,
-                                     'is_bailout'   => 0,
-                                     'is_pragma'    => 0,
-                                     'is_version'   => 0,
-                                     'is_comment'   => 0,
-                                     'has_skip'     => 0,
-                                     'is_test'      => 0,
-                                     'is_yaml'      => 1,              # <---
-                                     'is_plan'      => 0,
-                                     'raw'          => '   ---
-     - name: \'Hash one\'
-       value: 1
-     - name: \'Hash two\'
-       value: 2
-   ...'
-                                     'as_string'    => '   ---
-     - name: \'Hash one\'
-       value: 1
-     - name: \'Hash two\'
-       value: 2
-   ...',
-                                     'data'         => [
-                                                        {
-                                                          'value' => '1',
-                                                          'name' => 'Hash one'
-                                                        },
-                                                        {
-                                                          'value' => '2',
-                                                          'name' => 'Hash two'
-                                                        }
-                                                       ],
-                                 }
-                               ],
-              },
-              {
-                'is_actual_ok' => 0,
-                'is_bailout'   => 0,
-                'is_comment'   => 0,
-                'is_ok'        => 1,                     # <---
-                'is_plan'      => 0,
-                'is_pragma'    => 0,
-                'is_test'      => 1,                     # <---
-                'is_unknown'   => 0,
-                'is_unplanned' => 0,
-                'is_version'   => 0,
-                'is_yaml'      => 0,
-                'has_skip'     => 0,
-                'has_todo'     => 0,
-                'explanation'  => '',
-                'number'       => '2',                   # <---
-                'type'         => 'test',
-                'description'  => '- KEYs + PARENT',
-                'directive'    => '',
-                'severity'     => 1,
-                'raw'          => 'ok 2 - KEYs + PARENT'
-                'as_string'    => 'ok 2 - KEYs + PARENT',
-              },
-              # etc., see the rest in t/some_tap.dom ...
-             ],
- }, 'TAP::DOM')                                          # blessed
-
-
-=head1 NESTED LINES
-
-As you can see above, diagnostic lines (comment or yaml) are nested
-into the line before under a key C<_children> which simply contains an
-array of those comment/yaml line elements.
-
-With this you can recognize where the diagnostic lines semantically
-belong.
 
 =head1 HOW TO STRIP DETAILS
 
