@@ -45,6 +45,7 @@ our @tap_dom_args = (qw(ignore
                         lowercase_fieldnames
                         lowercase_fieldvalues
                         trim_fieldvalues
+                        normalize
                      ));
 
 use parent 'Exporter';
@@ -148,6 +149,21 @@ use Class::XSAccessor
 
 sub _capture_group {
     my ($s, $n) = @_; substr($s, $-[$n], $+[$n] - $-[$n]);
+}
+
+sub normalize_tap_line {
+  my ($line) = @_;
+
+  return $line unless $line =~ m/^(not\s+)?(ok)\s+/;
+
+  $line =~ s{^(not\s)?\s*(ok)\s+(\d+\s)?\s*(-\s+)?\s*}{($1//'').$2.' '}e;
+  $line =~ s/['"]//g;
+  $line =~ s/\\(?!#\s*(todo|skip)\b)//gi;
+  $line =~ s/\s*(?<!\\)#\s*(todo|skip)\b/' # '.uc($1)/ei;
+  $line =~ s/^\s+//g;
+  $line =~ s/\s+$//g;
+
+  return $line;
 }
 
 # Optimize the TAP text before parsing it.
@@ -279,6 +295,7 @@ sub new {
         my $LOWERCASE_FIELDVALUES = $args{lowercase_fieldvalues};
         my $TRIM_FIELDVALUES = $args{trim_fieldvalues};
         my $NOEMPTY_TAP = $args{noempty_tap};
+        my $NORMALIZE = $args{normalize};
         delete $args{ignore};
         delete $args{ignorelines};
         delete $args{dontignorelines};
@@ -296,6 +313,7 @@ sub new {
         delete $args{lowercase_fieldnames};
         delete $args{lowercase_fieldvalues};
         delete $args{trim_fieldvalues};
+        delete $args{normalize};
 
         my $document_data_regex = qr/^#\s*$DOC_DATA_PREFIX([^:]+)\s*:\s*(.*)$/;
         my $document_data_ignore = defined($DOC_DATA_IGNORE) ? qr/$DOC_DATA_IGNORE/ : undef;
@@ -320,6 +338,7 @@ sub new {
                 foreach (qw(type raw as_string )) {
                         $entry->{$_} = $result->$_ unless $IGNORE{$_};
                 }
+                $entry->{normalized}  = $result->is_test ? normalize_tap_line($result->raw) : $result->raw;
 
                 if ($result->is_test) {
                         foreach (qw(directive explanation number description )) {
@@ -1197,7 +1216,7 @@ Use it like this:
 =head2 Strip unneccessary lines
 
 You can ignore complete lines from the input TAP as if they weren't
-existing by by setting a regular expression in C<ignorelines>. Of
+existing by setting a regular expression in C<ignorelines>. Of
 course you can break the TAP with this, so usually you only apply this
 to non-TAP lines or diagnostics you are not interested in.
 
@@ -1390,6 +1409,75 @@ Summary: for consistency it is suggested to set both options:
  disable_global_kv_data => 1,
  put_dangling_kv_data_under_lazy_plan => 1
 
+
+=head2 Normalize TAP line
+
+When the option C<normalize> is set to true an additional field
+L</normalized> is added which contains a, well, "normalized" (or
+"canonicalized") variant of the C<raw> line.
+
+Normalization rules:
+
+=over 4
+
+=item * line numbers, dashes, whitespace
+
+Different variants between the (not)ok part and the actual
+description, e.g. iteration number, leading dashes (like they were
+"invisible" in Larry Wall's original TAP handling), and leading and
+trailing whitespace are dropped:
+
+  not ok 12 - foo
+  not ok 12 foo
+  not ok - foo
+  not ok      foo
+
+get normalized to
+
+  not ok foo
+
+=item * quote characters
+
+Quote characters make it more difficult to transport the lines in
+typical string-based APIs like in JSON payload. We completely drop
+them (i.e., there is no replacement character):
+
+A line like
+
+  ok foo'bar"baz" drum'n'bass
+
+becomes
+
+  ok foobarbaz drumnbass
+
+=item * backslashes
+
+Backslashes are dropped, except before C<#TODO> / C<#SKIP> because
+there they are used by some TAP tools to force exactly these strings
+into the description, which is wrong imho but here we are...
+
+=item * directives (TODO, SKIP)
+
+Directives are normalized to uppercase with exactly one space left and
+right to C<#>, respectively, i.e. all these lines
+
+ not ok foo #todo my explanation
+ not ok foo # todo my explanation
+ not ok foo #TODO my explanation
+ not ok foo # TODO my explanation
+ not ok foo    #todo     my explanation
+
+become
+
+ not ok foo # TODO my explanation
+
+and the same with C<SKIP>.
+
+=back
+
+See also the L</normalize_tap_line> utility function for how to use
+this normalization outside of TAP::DOM.
+
 =head1 ACCESSORS AND UTILITY METHODS
 
 =head2 end_time
@@ -1448,6 +1536,36 @@ structure looks like this:
 
 =head2 version
 
+=head2 normalize_tap_line
+
+Utility function for inside and outside TAP::DOM usage.
+
+This function normalizes a TAP line, similar to what C<as_string()>
+does but it does it slightly different and does even more.
+
+It normalizes typical variants of formatting or numbering a TAP line
+into a common form. This can make searching TAP lines easier by not
+requiring regular expressions to express subtle variance. You would
+search by an also normalized TAP line in the stored normalized lines.
+
+The use of this functionality must be enabled as TAP::DOM option
+C<normalize>. Applications handling normalized TAP should also use
+this very function here to apply the same normalization.
+
+This method does not depend on the TAP parser but can be used
+independently on any string which is expected to be a test line
+(i.e. starting with C<ok> or C<not ok>), so it can be used from other
+applications, too. However, to ensure it makes sense you should ONLY
+apply it to lines that B<are> guaranteed to be such I<test> lines,
+which is B<not> as trivial as one might naively think. Inside TAP::DOM
+with the I<normalize> option they are only applied to lines where
+I<is_test> is true.
+
+See L</Normalize TAP line> about the applied modifications.
+
+Although the option C<normalize> itself is EXPERIMENTAL, the function
+normalize_tap_line itself can still make sense outside TAP::DOM usage.
+
 =head1 ADDITIONAL ATTRIBUTES
 
 TAP::DOM creates attributes beyond those from TAP::Parser, usually to
@@ -1505,6 +1623,17 @@ pragma doesn't interfere with C<test>/C<plan> lines you can use this
 to express an out-of-band error situation which would be lost
 otherwise. Read below for more.
 
+=head2 normalized (EXPERIMENTAL!)
+
+The C<normalized> field contains a normalized (or "canonicalized")
+variant of the C<raw> line. See L</Normalize TAP line> about the
+applied modifications.
+
+Please note, that the other fields, in particular C<description> and
+C<explanation> refer to the original C<raw> line as seen by the
+TAP::Parser, so they get out of sync. That's the main reason why this
+feature is B<EXPERIMENTAL>.
+
 =head1 TAP::DOM-SPECIFIC PRAGMAS
 
 Pragmas in TAP are meant to influence the behaviour of the TAP parser.
@@ -1522,9 +1651,9 @@ You can for instance append this pragma to the TAP document during
 post-processing to express an out-of-band error situation without
 interfering with the existing test lines and plan.
 
-Typical situations can be a an error from C<prove> or other TAP
-processor, and you want to ensure this problem does not get lost when
-storing the document in a database.
+Typical situations could be for instance errors from C<prove> or
+another TAP processor, and you want to ensure this problem does not
+get lost when storing the document in a database.
 
 Pragmas allow C<kv_data> like in C<test> and C<plan> lines, so you can
 transport additional error details like this:
