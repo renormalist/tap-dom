@@ -883,7 +883,7 @@ into the line before under a key C<_children> which simply contains an
 array of those comment/yaml line elements.
 
 With this you can recognize where the diagnostic lines semantically
-belong.
+belong, i.e. to their I<parent> test line.
 
 =head1 METHODS
 
@@ -917,7 +917,7 @@ and returns a big data structure containing the extracted results.
    trim_fieldvalues                     => 1,
  );
 
-=head3 Arguments
+=head3 Options
 
 =over 4
 
@@ -1001,8 +1001,8 @@ worth the hazzle.
 
 =item sparse
 
-Only set boolean fields if they are a true value. This results in a
-much more condensed data structure but also means you can't check on
+Only generate boolean fields if they are a true value. This results in
+a much more condensed data structure but also means you can't check on
 value C<0> but the absence of value C<1>.
 
 The option has no effect when C<usebitsets> is used.
@@ -1332,13 +1332,13 @@ By setting option C<lowercase_fieldnames> all field names (hash keys)
 in C<document_data> and C<kv_data> are set to lowercase. This is
 especially helpful to normalize different casing like
 
- # Test-Strange-Key: some value
- # Test-strange-key: some value
- # Test-STRANGE-KEY: some value
+ # Test-Strange-Key: Some Value
+ # Test-strange-key: Some Value
+ # Test-STRANGE-KEY: Some Value
 
 etc. all into
 
-  "strange-key" => "some value"
+  "strange-key" => "Some Value"
 
 =head2 Lowercase all key:value values
 
@@ -1346,13 +1346,13 @@ By setting option C<lowercase_fieldvalues> all field values in
 C<document_data> and C<kv_data> are set to lowercase. This is
 especially helpful to normalize different casing like
 
- # Test-strange-key: Some Value
- # Test-strange-key: Some value
- # Test-strange-key: SOME VALUE
+ # Test-Strange-Key: Some Value
+ # Test-Strange-Key: Some value
+ # Test-Strange-Key: SOME VALUE
 
 etc. all into
 
-  "strange-key" => "some value"
+  "Strange-Key" => "some value"
 
 B<Warning:> while the sister option C<lowercase_fieldnames> above is
 obviously helpful to keep the information more together, this
@@ -1363,7 +1363,7 @@ expressions, Elasticsearch, etc.
 
 =head2 Placing key:value pairs
 
-Normally a key:value pair C<{foo => bar}> from a line like
+Normally a key:value pair C<{foo =E<gt> bar}> from a line like
 
   # Test-foo: bar
 
@@ -1374,7 +1374,7 @@ If that's not the case then it is not clear where they belong. Early
 TAP::DOM versions had put them under a global entry C<document_data>.
 
 However this makes these entries inconsistently appear in different
-levels of the DOM. so you can suppress that old behaviour by setting
+levels of the DOM. Therefore you can suppress that old behaviour by setting
 C<disable_global_kv_data> to 1.
 
 However, with that option now, there can be lines that appear directly
