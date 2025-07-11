@@ -1026,7 +1026,7 @@ value C<0> but the absence of value C<1>.
 
 The option has no effect when C<usebitsets> is used.
 
-With the C<spare> option the actual line entries get restricted to
+With the C<sparse> option the actual line entries get restricted to
 only actually true values like this:
 
   # ... (the initial part is same as above in chapter "STRUCTURE")
