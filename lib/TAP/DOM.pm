@@ -614,11 +614,13 @@ sub new {
 
 sub _entry_to_tapline
 {
-        my ($self, $entry) = @_;
+        my ($self, $entry, $use_field) = @_;
+
+        return $entry->{$use_field} if $use_field;
 
         my %IGNORE = %{$self->{tapdom_config}{ignore}};
 
-        my $tapline = "";
+        my $tapline;
 
         # ok/notok test lines
         if ($entry->{is_test})
@@ -649,25 +651,27 @@ sub _entry_to_tapline
 
 sub _lines_to_tap
 {
-        my ($self, $lines) = @_;
+        my ($self, $lines, $use_field) = @_;
 
         my @taplines;
         foreach my $entry (@$lines)
         {
-                my $tapline = $self->_entry_to_tapline($entry);
-                push @taplines, $tapline if $tapline;
-                push @taplines, $self->_lines_to_tap($entry->{_children}) if $entry->{_children};
+                my $tapline = $self->_entry_to_tapline($entry, $use_field);
+                push @taplines, $tapline if defined $tapline;
+                push @taplines, $self->_lines_to_tap($entry->{_children}, $use_field) if $entry->{_children};
         }
         return @taplines;
 }
 
 sub to_tap
 {
-    my ($self) = @_;
+    my ($self, $use_field) = @_;
 
-    my @taplines = $self->_lines_to_tap($self->{lines});
-    unshift @taplines, $self->{plan};
-    unshift @taplines, "TAP version ".$self->{version};
+    my @taplines = $self->_lines_to_tap($self->{lines}, $use_field);
+    unless ($use_field) {
+      unshift @taplines, $self->{plan};
+      unshift @taplines, "TAP version ".$self->{version};
+    }
 
     return wantarray
       ? @taplines
@@ -1170,9 +1174,36 @@ or
 
 But there are more, see L<TAP::Parser|TAP::Parser>.
 
-=head2 to_tap
+=head2 to_tap ([$USE_FIELD])
 
 Called on a TAP::DOM object it returns a string that is TAP.
+
+By default it reconstructs the TAP from the separate fields that
+result from parsing, thereby generating an idealized variant of the
+original TAP, for instance with a plan and version at the start,
+always using TAP enumerated lines, etc.
+
+Provide I<$USE_FIELD> if that's not wanted.
+
+=over 4
+
+=item * USE_FIELD
+
+Optional fieldname. Set this if lines should be just taken from the
+provided field (obviously C<raw> or C<as_string>, or C<normalized> if
+available due to option I<normalize>). It's the user's responsibility
+to know if the TAP::DOM contains the specified field, e.g. that
+C<raw> or C<as_string> are not in the I<ignore> list.
+
+This allows to generate TAP very similar to the original, except for
+things that were configured to get changed during parse time, like
+skipped lines or re-ordering of I<children> lines (look for
+I<disable_global_kv_data> or I<put_dangling_kv_data_under_lazy_plan>).
+
+No check is done if the fieldname makes sense, you are free to
+generate rubbish via any other fieldname.
+
+=back
 
 =head1 HOW TO STRIP DETAILS
 
